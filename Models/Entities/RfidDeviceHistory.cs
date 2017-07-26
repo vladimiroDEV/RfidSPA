@@ -13,14 +13,11 @@ namespace RfidSPA.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long RfidDeviceHistoryID { get; set; }
 
-        public long RfidDeviceID { get; set; }
-
         public string RfidDeviceCode { get; set; }
 
         public DateTime? InsertDate { get; set; }
 
-
-        public long ApplicationUserID { get; set; }
+        public string ApplicationUserID { get; set; }
 
         public bool Active { get; set; }
 

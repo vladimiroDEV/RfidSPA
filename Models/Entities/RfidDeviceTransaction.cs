@@ -17,7 +17,7 @@ namespace RfidSPA.Models.Entities
 
         public long? AnagraficaID { get; set; }
 
-        public long ApplicationUserID { get; set; }
+        public string ApplicationUserID { get; set; }
 
         public int TransactionOperation { get; set; }
 
@@ -29,9 +29,9 @@ namespace RfidSPA.Models.Entities
 
         // indica quando la transazaione è completata
         // viene scritto true quando il pagamento viene pagato il totale
-        //public bool Confirmed { get; set; }
+        public bool PaydOff { get; set; }
 
-        //public DateTime? ConfirmedDate { get; set; }
+        public DateTime? PaydOffDate { get; set; }
 
 
     }

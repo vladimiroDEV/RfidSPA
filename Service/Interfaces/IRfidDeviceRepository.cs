@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RfidSPA.Service.Interfaces
 {
-    public interface IRfidRepository
+    public interface IRfidDeviceRepository
     {
         IEnumerable<RfidDevice> GetAllRfids();
 
@@ -17,7 +17,7 @@ namespace RfidSPA.Service.Interfaces
 
         List<RfidDevice> RfidsByAnagraficaID(long ID);
 
-        bool CeateNewRfid(RfidDevice item);
+        bool CeateNewRfid(AnagraficaRfidDeviceModel item);
 
         bool PaidByRfid(PaidModel paidmodel);
 

@@ -23,7 +23,7 @@ namespace RfidSPA.Models.Entities
 
         public double? Credit { get; set; }
 
-        public long ApplicationUserID { get; set; }
+        public string  ApplicationUserID { get; set; }
 
         public bool Active { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using RfidSPA.Data;
 using RfidSPA.Models.Entities;
+using RfidSPA.Service.Interfaces;
 using RfidSPA.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -37,10 +38,10 @@ namespace RfidSPA.Service
             return _context.RfidDevice.Where(i => i.RfidDeviceID == id).SingleOrDefault();
         }
 
-        //public List<RfidDevice> RfidsByAnagraficaID(long ID)
-        //{
-        //    return _context.RfidDevice.Where(i => i.AnagraficaID == ID).ToList();
-        //}
+        public List<RfidDevice> RfidsByAnagraficaID(long ID)
+        {
+            return _context.RfidDevice.Where(i => i.AnagraficaID == ID).ToList();
+        }
 
         public bool CeateNewRfid(AnagraficaRfidDeviceModel  item)
         {
@@ -123,17 +124,18 @@ namespace RfidSPA.Service
                 var rfid = RfidByCode(paidModel.RfidCode);
                 if (rfid != null)
                 {
-                    Transaction trans = new Transaction();
-                    trans.RfidCode = rfid.RfidCode;
+                    RfidDeviceTransaction trans = new RfidDeviceTransaction();
+                    trans.RfidDeviceCode = rfid.RfidDeviceCode;
                     trans.AnagraficaID = rfid.AnagraficaID;
-                    trans.AppUserID = rfid.AppUserID;
-                    trans.OperationID = (int)TransactionOperation.Pagamento;
+                    trans.ApplicationUserID = rfid.ApplicationUserID;
+                    trans.TransactionOperation = (int)TransactionOperation.Pagamento;
                     trans.TransactionDate = DateTime.Now;
                     trans.Importo = paidModel.Price;
                     trans.Descrizione = paidModel.Descrizione;
+                    trans.PaydOff = false;
 
 
-                    _context.Transaction.Add(trans);
+                    _context.RfidDeviceTransaction.Add(trans);
                     _context.SaveChanges();
                 }
                 else result = false;
@@ -151,21 +153,21 @@ namespace RfidSPA.Service
         public bool paidOffRfid(string code)
         {
 
-            var rfid = _context.Rfids.Where(i => i.RfidCode == code).SingleOrDefault();
+            var rfid = _context.RfidDevice.Where(i => i.RfidDeviceCode == code).SingleOrDefault();
             if (rfid == null) return false;
             try
             {
 
-                _context.Transaction.Add(new Transaction
+                _context.RfidDeviceTransaction.Add(new RfidDeviceTransaction
                 {
                     AnagraficaID = rfid.AnagraficaID,
-                    AppUserID = rfid.AppUserID,
+                    ApplicationUserID = rfid.ApplicationUserID,
                     Descrizione = "Saldo conto",
                     Importo = rfid.Credit,
-                    RfidCode = rfid.RfidCode,
-                    OperationID = (int)TransactionOperation.SaldoDebito,
-                    Confirmed = true,
-                    ConfirmedDate = DateTime.Now,
+                    RfidDeviceCode = rfid.RfidDeviceCode,
+                    TransactionOperation = (int)TransactionOperation.SaldoDebito,
+                    PaydOff = true,
+                    PaydOffDate = DateTime.Now,
                     TransactionDate = DateTime.Now
                 });
                 rfid.Credit = 0;
@@ -180,7 +182,7 @@ namespace RfidSPA.Service
             }
         }
 
-        public bool paidOffAllRfids(List<Rfid> listRfids)
+        public bool paidOffAllRfids(List<RfidDevice> listRfids)
         {
 
             try
@@ -188,7 +190,7 @@ namespace RfidSPA.Service
                 foreach (var rfid in listRfids)
                 {
 
-                    var res = paidOffRfid(rfid.RfidCode);
+                    var res = paidOffRfid(rfid.RfidDeviceCode);
                     if (res == false) return false;
                 }
 
@@ -201,33 +203,35 @@ namespace RfidSPA.Service
 
         }
 
+
+
         #region Methods 
 
         void updateRfidHistory(RfidDevice rfid, RfidOperations operation)
         {
 
             RfidDeviceHistory rfidHistory = new RfidDeviceHistory();
-            rfidHistory.RfidDeviceID = rfid.RfidDeviceID;
+           
             rfidHistory.RfidDeviceCode = rfid.RfidDeviceCode;
             rfidHistory.InsertDate = DateTime.Now;
-            rfidHistory.Rfid = (int)operation;
-            rfidHistory.AppUserID = rfid.AppUserID;
+            rfidHistory.RfidDeviceOperation = (int)operation;
+            rfidHistory.ApplicationUserID = rfid.ApplicationUserID;
             rfidHistory.Active = rfid.Active;
             rfidHistory.AnagraficaID = rfid.AnagraficaID;
 
-            _context.RfidHistory.AddAsync(rfidHistory);
+            _context.RfidDeviceHistory.AddAsync(rfidHistory);
             _context.SaveChanges();
 
 
         }
 
-        public List<Transaction> GetAllTransactionsToConfirm(string code)
+        public List<RfidDeviceTransaction> GetAllTransactionsToConfirm(string code)
         {
 
-            List<Transaction> listTr = new List<Transaction>();
+            List<RfidDeviceTransaction> listTr = new List<RfidDeviceTransaction>();
 
-            listTr = _context.Transaction
-                .Where(i => i.Confirmed == false && i.RfidCode == code).ToList();
+            listTr = _context.RfidDeviceTransaction
+                .Where(i => i.PaydOff == false && i.RfidDeviceCode == code).ToList();
 
             return listTr;
         }
@@ -244,7 +248,7 @@ namespace RfidSPA.Service
 
         public UserDetailViewModel getGeatailUserByRfidCode(string code)
         {
-            var disp = _context.Rfids.Where(i => i.RfidCode == code).SingleOrDefault();
+            var disp = _context.RfidDevice.Where(i => i.RfidDeviceCode == code).SingleOrDefault();
 
             if (disp == null) return null;
             var user = _context.Anagrafica.Where(i => i.AnagraficaID == disp.AnagraficaID).SingleOrDefault();
@@ -256,9 +260,9 @@ namespace RfidSPA.Service
 
         #region localMethos 
 
-        List<Rfid> getDeviceByUser(long id, bool? active = true)
+        List<RfidDevice> getDeviceByUser(long id, bool? active = true)
         {
-            return _context.Rfids.Where(i => i.AnagraficaID == id && i.Active == active).ToList();
+            return _context.RfidDevice.Where(i => i.AnagraficaID == id && i.Active == active).ToList();
         }
 
 
