@@ -39,6 +39,7 @@ namespace RfidSPA.Controllers.API
         public string Get(int id)
         {
             return "value";
+
         }
         [HttpGet("code/{code}")]
         public IActionResult Get(string code)

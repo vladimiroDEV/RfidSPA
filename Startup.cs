@@ -19,6 +19,10 @@ using RfidSPA.Auth;
 using RfidSPA.Helpers;
 using RfidSPA.Models.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using RfidSPA.Service;
+using RfidSPA.Service.Interfaces;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace WebApplicationBasic
 {
@@ -78,7 +82,14 @@ namespace WebApplicationBasic
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ContractResolver =
+                    new DefaultContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            }); 
+            services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
+            services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -98,6 +109,14 @@ namespace WebApplicationBasic
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseCors(
+           builder => builder
+           .AllowAnyOrigin()
+          .AllowAnyHeader()
+          .AllowAnyMethod());
+
+
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -120,6 +139,8 @@ namespace WebApplicationBasic
                 AutomaticChallenge = true,
                 TokenValidationParameters = tokenValidationParameters
             });
+
+        
 
 
             app.UseStaticFiles();

@@ -12,12 +12,14 @@ using RfidSPA.Models.Entities;
 using RfidSPA.Auth;
 using Microsoft.Extensions.Options;
 using RfidSPA.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace RfidSPA.Controllers.API
 {
     [Route("api/[controller]")]
+   
     public class AuthController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -55,7 +57,7 @@ namespace RfidSPA.Controllers.API
             // Serialize and return the response
             var response = new
             {
-                id = identity.Claims.Single(c => c.Type == "id").Value,
+                Rfid_AppliactionUserID = identity.Claims.Single(c => c.Type == "id").Value,
                 auth_token = await _jwtFactory.GenerateEncodedToken(credentials.UserName, identity),
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };

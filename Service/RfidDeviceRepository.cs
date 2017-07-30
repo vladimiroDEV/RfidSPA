@@ -124,6 +124,10 @@ namespace RfidSPA.Service
                 var rfid = RfidByCode(paidModel.RfidCode);
                 if (rfid != null)
                 {
+                    if(rfid.AnagraficaID == null || rfid.AnagraficaID ==0)
+                    {
+                        return false; // non è associata nessuna anagrafica 
+                    }
                     RfidDeviceTransaction trans = new RfidDeviceTransaction();
                     trans.RfidDeviceCode = rfid.RfidDeviceCode;
                     trans.AnagraficaID = rfid.AnagraficaID;
