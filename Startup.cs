@@ -23,6 +23,7 @@ using RfidSPA.Service;
 using RfidSPA.Service.Interfaces;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApplicationBasic
 {
@@ -82,6 +83,8 @@ namespace WebApplicationBasic
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            
+
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver =
@@ -90,6 +93,8 @@ namespace WebApplicationBasic
             }); 
             services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
             services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
