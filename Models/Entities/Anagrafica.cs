@@ -25,5 +25,8 @@ namespace RfidSPA.Models.Entities
         public DateTime? CreationDate { get; set; }
 
         public DateTime? LastModifiedDate { get; set; }
+
+        public string ApplicationUserID { get; set; }
+
     }
 }

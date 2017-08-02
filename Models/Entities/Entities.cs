@@ -9,7 +9,7 @@ namespace RfidSPA.Models.Entities
     {
 
         public string RfidCode { get; set; }
-        public float Price { get; set; }
+        public double Price { get; set; }
         public string Descrizione { get; set; }
 
     }

@@ -56,6 +56,7 @@ namespace RfidSPA.Service
                 {
                     Anagrafica anag = item.anagrafica;
                     anag.CreationDate = DateTime.Now;
+                    anag.ApplicationUserID = item.device.ApplicationUserID;
                     _context.Anagrafica.Add(anag);
                     _context.SaveChanges();
 
@@ -64,9 +65,10 @@ namespace RfidSPA.Service
                 }
 
                 item.anagrafica.AnagraficaID = l_anag.AnagraficaID;
-                item.anagrafica
-                    .AnagraficaID = l_anag.AnagraficaID;
-                var rfid = _context.RfidDevice.Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode).SingleOrDefault();
+               
+                var rfid = _context.RfidDevice
+                    .Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode)
+                    .SingleOrDefault();
 
 
                 if (rfid != null)
@@ -138,7 +140,8 @@ namespace RfidSPA.Service
                     trans.Descrizione = paidModel.Descrizione;
                     trans.PaydOff = false;
 
-
+                    rfid.Credit += paidModel.Price;
+                    _context.Update(rfid);
                     _context.RfidDeviceTransaction.Add(trans);
                     _context.SaveChanges();
                 }
@@ -229,7 +232,7 @@ namespace RfidSPA.Service
 
         }
 
-        public List<RfidDeviceTransaction> GetAllTransactionsToConfirm(string code)
+        public List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code)
         {
 
             List<RfidDeviceTransaction> listTr = new List<RfidDeviceTransaction>();

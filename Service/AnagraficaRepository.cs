@@ -1,10 +1,10 @@
-﻿using RfidSPA.Data;
+﻿
+using RfidSPA.Data;
 using RfidSPA.Models.Entities;
 using RfidSPA.Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RfidSPA.Service
 {
@@ -16,13 +16,16 @@ namespace RfidSPA.Service
         public AnagraficaRepository(ApplicationDbContext context)
         {
             _context = context;
+   
         }
 
 
 
         public Anagrafica AnagraficaByEmail(string email)
         {
-            return _context.Anagrafica.Where(i => i.Email == email).SingleOrDefault();
+            return _context.Anagrafica
+                .Where(i => i.Email == email)
+                .SingleOrDefault();
         }
 
         public Anagrafica AnagraficaByID(long ID)
@@ -36,7 +39,7 @@ namespace RfidSPA.Service
         }
 
         public string[] SearchEmailLike(string email)
-        {
+        {     
             return _context.Anagrafica
                 .Where(i => i.Email.Contains(email))
                 .Select(i => i.Email)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RfidSPA.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,7 +13,7 @@ namespace RfidSPA.Controllers.API
 {
     [Produces("application/json")]
     [Route("api/Anagrafica")]
-
+    [Authorize]
     public class AnagraficaController : Controller
     {
         private readonly IRfidDeviceRepository _repositoryRfid;
@@ -26,7 +27,7 @@ namespace RfidSPA.Controllers.API
         [HttpGet("emailLikes/{email}")]
        
         public string[] emailLikes(string email)
-        {
+        {        
             return _repositoryAnagrafica.SearchEmailLike(email);
         }
     }

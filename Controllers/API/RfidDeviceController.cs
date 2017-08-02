@@ -15,6 +15,7 @@ namespace RfidSPA.Controllers.API
 
     [Produces("application/json")]
     [Route("api/[controller]")]
+    [Authorize]
     public class RfidDeviceController : Controller
     {
 
@@ -78,12 +79,12 @@ namespace RfidSPA.Controllers.API
         }
 
         //
-        // parametro rfidCode
-        [HttpGet("transactionsToConfirmRfidCode/{code}")]
-        public IActionResult getAllTransactionsToConfirm(string code)
+        // parametro Aplication UserID  rfidCode
+        [HttpGet("getAllTransactionsToPaydOff/{code}")]
+        public IActionResult getAllTransactionsToPaydOff(string code)
         {
 
-            var res = _repositoryRfid.GetAllTransactionsToConfirm(code);
+            var res = _repositoryRfid.getAllTransactionsToPaydOff(code);
 
             if (res != null)
                 return Json(res);

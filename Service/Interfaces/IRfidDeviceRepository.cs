@@ -26,7 +26,7 @@ namespace RfidSPA.Service.Interfaces
         bool paidOffAllRfids(List<RfidDevice> listRfids);
 
 
-        List<RfidDeviceTransaction> GetAllTransactionsToConfirm(string code);
+        List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code);
 
         UserDetailViewModel getGeatailUserByEmail(string email);
         UserDetailViewModel getGeatailUserByRfidCode(string code);
