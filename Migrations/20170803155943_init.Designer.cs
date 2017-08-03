@@ -8,8 +8,8 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170726204712_data")]
-    partial class data
+    [Migration("20170803155943_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -128,6 +128,8 @@ namespace RfidSPA.Migrations
                 {
                     b.Property<long>("AnagraficaID")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ApplicationUserID");
 
                     b.Property<string>("Cognome");
 

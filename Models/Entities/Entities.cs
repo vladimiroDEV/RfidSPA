@@ -26,4 +26,11 @@ namespace RfidSPA.Models.Entities
         Pagamento = 1,
         SaldoDebito = 2
     }
+
+    public enum OprationStatus
+    {
+        Success= 1,
+        DispositivoNonTrovato = 2,
+        NoDispositovoAssociato = 3,
+    }
 }

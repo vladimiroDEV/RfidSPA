@@ -117,8 +117,8 @@ namespace RfidSPA.Controllers.API
         }
 
         // PAid 
-        [HttpPost("paidTotalReset/{code}")]
-        public IActionResult paidTotalReset(string code)
+        [HttpPost("paidTotalReset")]
+        public IActionResult paidTotalReset([FromBody] string code)
         {
 
             var res = _repositoryRfid.paidOffRfid(code);
