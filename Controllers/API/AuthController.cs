@@ -55,7 +55,7 @@ namespace RfidSPA.Controllers.API
             // Serialize and return the response
             var response = new
             {
-                Rfid_AppliactionUserID = User.Claims.Single(c => c.Type == "id").Value,
+                Rfid_AppliactionUserID = identity.Claims.Single(c => c.Type == "id").Value,
                 auth_token = await _jwtFactory.GenerateEncodedToken(credentials.UserName, identity),
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };

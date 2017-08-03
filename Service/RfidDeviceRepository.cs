@@ -1,4 +1,5 @@
-﻿using RfidSPA.Data;
+﻿using Microsoft.AspNetCore.Http;
+using RfidSPA.Data;
 using RfidSPA.Models.Entities;
 using RfidSPA.Service.Interfaces;
 using RfidSPA.ViewModels;
@@ -12,11 +13,15 @@ namespace RfidSPA.Service
     public class RfidDeviceRepository : IRfidDeviceRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAcessor;
+        private readonly string _appCurrentUserID;
 
 
-        public RfidDeviceRepository(ApplicationDbContext context)
+        public RfidDeviceRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAcessor)
         {
             _context = context;
+            _httpContextAcessor = httpContextAcessor;
+            _appCurrentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
         }
 
 
@@ -30,7 +35,7 @@ namespace RfidSPA.Service
 
         public RfidDevice RfidByCode(string code)
         {
-            return _context.RfidDevice.Where(i => i.RfidDeviceCode == code).SingleOrDefault();
+            return _context.RfidDevice.Where(i => i.RfidDeviceCode == code && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
         }
 
         public RfidDevice RfidByID(long id)
@@ -40,7 +45,7 @@ namespace RfidSPA.Service
 
         public List<RfidDevice> RfidsByAnagraficaID(long ID)
         {
-            return _context.RfidDevice.Where(i => i.AnagraficaID == ID).ToList();
+            return _context.RfidDevice.Where(i => i.AnagraficaID == ID && i.ApplicationUserID == _appCurrentUserID).ToList();
         }
 
         public bool CeateNewRfid(AnagraficaRfidDeviceModel  item)
@@ -48,7 +53,7 @@ namespace RfidSPA.Service
 
             try
             {
-                var l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email).SingleOrDefault();
+                var l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
 
                 // check id user exists 
                 // se user non esiste crea uno nuovo 
@@ -56,18 +61,18 @@ namespace RfidSPA.Service
                 {
                     Anagrafica anag = item.anagrafica;
                     anag.CreationDate = DateTime.Now;
-                    anag.ApplicationUserID = item.device.ApplicationUserID;
+                    anag.ApplicationUserID =  _appCurrentUserID;
                     _context.Anagrafica.Add(anag);
                     _context.SaveChanges();
 
-                    l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email).SingleOrDefault();
+                    l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
 
                 }
 
                 item.anagrafica.AnagraficaID = l_anag.AnagraficaID;
                
                 var rfid = _context.RfidDevice
-                    .Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode)
+                    .Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode && i.ApplicationUserID == _appCurrentUserID)
                     .SingleOrDefault();
 
 
