@@ -87,7 +87,8 @@ namespace RfidSPA.Controllers.API
             var res = _repositoryRfid.getAllTransactionsToPaydOff(code);
 
             if (res != null)
-                return Json(res);
+                if(res.Count >0)
+                 return Json(res);
 
             return NotFound();
         }
