@@ -167,7 +167,9 @@ namespace RfidSPA.Service
         // salda il conto e restituisci il dissassocia il dispositivo da l'utente 
         public bool paidOffRfid(string code)
         {
-            
+
+            try
+            {
                 var listTr = _context.RfidDeviceTransaction
                 .Where(i => i.PaydOff == false
                         && i.RfidDeviceCode == code
@@ -180,10 +182,10 @@ namespace RfidSPA.Service
                        && i.AnagraficaID != null
                        && i.ApplicationUserID == _appCurrentUserID)
                     .SingleOrDefault();
+            
+           
 
-            if (listTr != null && rfid != null)
-            {
-                try
+                if (listTr != null)
                 {
                     foreach (var item in listTr)
                     {
@@ -192,6 +194,10 @@ namespace RfidSPA.Service
                         _context.RfidDeviceTransaction.Update(item);
 
                     }
+                }
+                if (rfid != null){
+
+
                     _context.RfidDeviceTransaction.Add(new RfidDeviceTransaction
                     {
                         AnagraficaID = rfid.AnagraficaID,
@@ -208,17 +214,20 @@ namespace RfidSPA.Service
                     rfid.AnagraficaID = null;
                     _context.Update(rfid);
                     _context.SaveChanges();
+                    updateRfidHistory(rfid, RfidOperations.Restituisci);
 
 
                     return true;
                 }
-                catch
-                {
-                    return false;
-                }
+                else return false;
+
             }
-            else return false;
            
+             catch
+            {
+                return false;
+            }
+
         }
 
         public bool paidOffAllRfids(List<RfidDevice> listRfids)
@@ -292,7 +301,12 @@ namespace RfidSPA.Service
 
         public UserDetailViewModel getGeatailUserByRfidCode(string code)
         {
-            var disp = _context.RfidDevice.Where(i => i.RfidDeviceCode == code).SingleOrDefault();
+            var disp = _context.RfidDevice
+                .Where(i => i.RfidDeviceCode == code
+                    && i.Active== true
+                    && i.AnagraficaID != null
+                    && i.ApplicationUserID == _appCurrentUserID)
+                .SingleOrDefault();
 
             if (disp == null) return null;
             var user = _context.Anagrafica.Where(i => i.AnagraficaID == disp.AnagraficaID).SingleOrDefault();

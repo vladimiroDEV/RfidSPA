@@ -30,7 +30,9 @@ namespace RfidSPA.Models.Entities
     public enum OprationStatus
     {
         Success= 1,
-        DispositivoNonTrovato = 2,
-        NoDispositovoAssociato = 3,
+        DeviseIsAssigned=2,
+        DeviceNotAssigned=3,
+        DeviceNotFound = 4,
+
     }
 }
