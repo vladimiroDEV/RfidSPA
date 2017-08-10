@@ -46,16 +46,21 @@ namespace RfidSPA.Controllers.API
                 return BadRequest(ModelState);
             }
 
+
+            var user = await _userManager.FindByEmailAsync(credentials.UserName);
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
             if (identity == null)
             {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
+
             // Serialize and return the response
             var response = new
             {
+
                 Rfid_AppliactionUserID = identity.Claims.Single(c => c.Type == "id").Value,
+                userRoles = await _userManager.GetRolesAsync(user),
                 auth_token = await _jwtFactory.GenerateEncodedToken(credentials.UserName, identity),
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };

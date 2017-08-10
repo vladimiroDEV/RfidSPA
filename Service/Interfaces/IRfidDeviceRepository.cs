@@ -27,6 +27,7 @@ namespace RfidSPA.Service.Interfaces
 
 
         List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code);
+         Task<List<RfidDevice>> getDevicesByApplicationUsers();
 
         UserDetailViewModel getGeatailUserByEmail(string email);
         UserDetailViewModel getGeatailUserByRfidCode(string code);

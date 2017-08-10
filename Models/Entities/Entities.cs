@@ -13,6 +13,12 @@ namespace RfidSPA.Models.Entities
         public string Descrizione { get; set; }
 
     }
+    public class ChangepasswordModel
+    {
+        public string newPassword { get; set; }
+        public string oldPassword { get; set; }
+    }
+
 
     public enum RfidOperations
     {
@@ -34,5 +40,12 @@ namespace RfidSPA.Models.Entities
         DeviceNotAssigned=3,
         DeviceNotFound = 4,
 
+    }
+
+    public enum ChangePasswordStatus
+    {
+        succces =1,
+        passwordNotMatch = 2,
+        errorChange  =3
     }
 }

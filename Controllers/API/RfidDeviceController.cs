@@ -144,6 +144,17 @@ namespace RfidSPA.Controllers.API
 
         }
 
+        // get DeviceByApllicaionUser 
+
+        [HttpGet("GetByApplicationUser")]
+        public async Task<IActionResult>  GetByApplicationUser()
+        {
+            var resp = await  _repositoryRfid.getDevicesByApplicationUsers();
+            if (resp != null) return Json(resp);
+            else return NotFound();
+
+        }
+
 
     }
 }

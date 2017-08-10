@@ -19,5 +19,12 @@ namespace RfidSPA.Helpers
                 public const string ApiAccess = "api_access";
             }
         }
+
+        public static class UserRolesConst
+        {
+            public  const string  Administrator = "Administrator";
+            public const string StoreAdministrator = "StoreAdministrator";
+            public const string StoreOperator = "StoreOperator";
+        } 
     }
 }

@@ -24,6 +24,8 @@ using RfidSPA.Service.Interfaces;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using RfidSPA.Configuration;
 
 namespace WebApplicationBasic
 {
@@ -93,6 +95,7 @@ namespace WebApplicationBasic
             }); 
             services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
             services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
@@ -160,6 +163,8 @@ namespace WebApplicationBasic
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
+
+            new UserRoleSeed(app.ApplicationServices.GetService<RoleManager<IdentityRole>>()).Seed();
         }
     }
 }

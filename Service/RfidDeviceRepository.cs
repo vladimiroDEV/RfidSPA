@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using RfidSPA.Data;
 using RfidSPA.Models.Entities;
 using RfidSPA.Service.Interfaces;
@@ -122,6 +123,7 @@ namespace RfidSPA.Service
         }
 
 
+        // paga con il dispositivo
         public bool PaidByRfid(PaidModel paidModel)
         {
 
@@ -251,35 +253,13 @@ namespace RfidSPA.Service
 
         }
 
-
-
-        #region Methods 
-
-        void updateRfidHistory(RfidDevice rfid, RfidOperations operation)
-        {
-
-            RfidDeviceHistory rfidHistory = new RfidDeviceHistory();
-           
-            rfidHistory.RfidDeviceCode = rfid.RfidDeviceCode;
-            rfidHistory.InsertDate = DateTime.Now;
-            rfidHistory.RfidDeviceOperation = (int)operation;
-            rfidHistory.ApplicationUserID = rfid.ApplicationUserID;
-            rfidHistory.Active = rfid.Active;
-            rfidHistory.AnagraficaID = rfid.AnagraficaID;
-
-            _context.RfidDeviceHistory.AddAsync(rfidHistory);
-            _context.SaveChanges();
-
-
-        }
-
         public List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code)
         {
 
             List<RfidDeviceTransaction> listTr = new List<RfidDeviceTransaction>();
 
             listTr = _context.RfidDeviceTransaction
-                .Where(i => i.PaydOff == false 
+                .Where(i => i.PaydOff == false
                         && i.RfidDeviceCode == code
                         && i.AnagraficaID != null
                         && i.ApplicationUserID == _appCurrentUserID
@@ -303,7 +283,7 @@ namespace RfidSPA.Service
         {
             var disp = _context.RfidDevice
                 .Where(i => i.RfidDeviceCode == code
-                    && i.Active== true
+                    && i.Active == true
                     && i.AnagraficaID != null
                     && i.ApplicationUserID == _appCurrentUserID)
                 .SingleOrDefault();
@@ -314,13 +294,37 @@ namespace RfidSPA.Service
             if (user == null) return null;
             return new UserDetailViewModel { Anagrafica = user, Dispositivi = getDeviceByUser(user.AnagraficaID, true) };
         }
-        #endregion
 
         #region localMethos 
+
+        void updateRfidHistory(RfidDevice rfid, RfidOperations operation)
+        {
+
+            RfidDeviceHistory rfidHistory = new RfidDeviceHistory();
+           
+            rfidHistory.RfidDeviceCode = rfid.RfidDeviceCode;
+            rfidHistory.InsertDate = DateTime.Now;
+            rfidHistory.RfidDeviceOperation = (int)operation;
+            rfidHistory.ApplicationUserID = rfid.ApplicationUserID;
+            rfidHistory.Active = rfid.Active;
+            rfidHistory.AnagraficaID = rfid.AnagraficaID;
+
+            _context.RfidDeviceHistory.AddAsync(rfidHistory);
+            _context.SaveChanges();
+
+
+        }
 
         List<RfidDevice> getDeviceByUser(long id, bool? active = true)
         {
             return _context.RfidDevice.Where(i => i.AnagraficaID == id && i.Active == active).ToList();
+        }
+
+        public async  Task<List<RfidDevice>> getDevicesByApplicationUsers()
+        {
+
+            var result = await _context.RfidDevice.Where(i => i.ApplicationUserID == _appCurrentUserID).ToListAsync();
+            return result;
         }
 
 
