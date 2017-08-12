@@ -34,13 +34,15 @@ namespace RfidSPA.Service
             _appDbContext = appDbContext;
             _logger = loggerFactory.CreateLogger<AccountRepository>();
             _httpContextAcessor = httpContextAcessor;
-            _currentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
+           // var user = _userManager.GetUserAsync(_httpContextAcessor.HttpContext.User); //
+
+            //_currentUserID = _userManager.GetUserId( user);//_httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
         }
 
 
         public async Task<ChangePasswordStatus> ChangePassword(ChangepasswordModel model)  
         {
-            var user = await _userManager.FindByIdAsync(_currentUserID);
+            var user = await _userManager.GetUserAsync(_httpContextAcessor.HttpContext.User); // _userManager.FindByIdAsync(_currentUserID);
             var result = await _userManager.ChangePasswordAsync(user, model.oldPassword, model.newPassword);
 
             if(result.Succeeded)

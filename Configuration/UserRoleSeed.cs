@@ -21,7 +21,8 @@ namespace RfidSPA.Configuration
             List<string> ListRoles = new List<string>(new string[] {
                 UserRolesConst.Administrator,
                 UserRolesConst.StoreAdministrator,
-                UserRolesConst.StoreOperator
+                UserRolesConst.StoreOperator,
+                UserRolesConst.Default
             });
 
             foreach(var item in ListRoles)

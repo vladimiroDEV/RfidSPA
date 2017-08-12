@@ -44,7 +44,7 @@ namespace RfidSPA.Controllers.API
 
 
         // POST api/accounts
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Post([FromBody]RegistrationViewModel model)
         {
             if (!ModelState.IsValid)
@@ -65,7 +65,7 @@ namespace RfidSPA.Controllers.API
                 return 
                     new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
 
-            await _userManager.AddToRoleAsync(ApplicationUser, UserRolesConst.Administrator);
+            await _userManager.AddToRoleAsync(ApplicationUser, model.Role);
 
           
             await _appDbContext.SaveChangesAsync();
