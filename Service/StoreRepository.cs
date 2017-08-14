@@ -66,6 +66,15 @@ namespace RfidSPA.Service
         }
 
 
+        public async Task<long> GetstoreIdByUser(string userID)
+        {
+            var id =   _appDbContext.StoreUsers.FirstOrDefault(i => i.UserID == userID).StoreID;
+
+            return  await Task.FromResult<long>(id);
+
+        }
+
+
 
 
         private async Task<ApplicationUser> GetCurrentUser()
