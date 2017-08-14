@@ -8,9 +8,10 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170812200814_AddStore")]
+    partial class AddStore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -284,13 +285,9 @@ namespace RfidSPA.Migrations
                     b.Property<long>("StoreID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Address");
-
-                    b.Property<string>("AdministratorID");
+                    b.Property<string>("Adress");
 
                     b.Property<DateTime?>("CreationDate");
-
-                    b.Property<string>("CreatorUser");
 
                     b.Property<DateTime?>("LastModifiedDate");
 
@@ -302,24 +299,6 @@ namespace RfidSPA.Migrations
                     b.HasKey("StoreID");
 
                     b.ToTable("Store");
-                });
-
-            modelBuilder.Entity("RfidSPA.Models.Entities.StoreUsers", b =>
-                {
-                    b.Property<long>("StoreUsersID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<long>("StoreID");
-
-                    b.Property<string>("UserID");
-
-                    b.Property<string>("UserRole");
-
-                    b.HasKey("StoreUsersID");
-
-                    b.HasIndex("StoreID");
-
-                    b.ToTable("StoreUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
@@ -356,14 +335,6 @@ namespace RfidSPA.Migrations
                     b.HasOne("RfidSPA.Models.Entities.ApplicationUser")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("RfidSPA.Models.Entities.StoreUsers", b =>
-                {
-                    b.HasOne("RfidSPA.Models.Entities.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }

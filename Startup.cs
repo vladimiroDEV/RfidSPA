@@ -96,6 +96,7 @@ namespace WebApplicationBasic
             services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
             services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IStoreRepository, StoreRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }

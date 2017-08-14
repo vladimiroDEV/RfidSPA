@@ -15,6 +15,8 @@ namespace RfidSPA.Data
         public DbSet<RfidDevice> RfidDevice { get; set; }
         public DbSet<RfidDeviceHistory> RfidDeviceHistory { get; set; }
         public DbSet<RfidDeviceTransaction> RfidDeviceTransaction { get; set; }
+        public DbSet<Store> Store { get; set; }
+        public DbSet<StoreUsers> StoreUsers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

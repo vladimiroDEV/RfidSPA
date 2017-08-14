@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using RfidSPA.Data;
 using RfidSPA.Models.Entities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace RfidSPA.Service
@@ -42,8 +39,9 @@ namespace RfidSPA.Service
 
         public async Task<ChangePasswordStatus> ChangePassword(ChangepasswordModel model)  
         {
-            var user = await _userManager.GetUserAsync(_httpContextAcessor.HttpContext.User); // _userManager.FindByIdAsync(_currentUserID);
-            var result = await _userManager.ChangePasswordAsync(user, model.oldPassword, model.newPassword);
+
+            
+            var result = await _userManager.ChangePasswordAsync(await GetCurrentUser(), model.oldPassword, model.newPassword);
 
             if(result.Succeeded)
             {
@@ -60,6 +58,13 @@ namespace RfidSPA.Service
             }
 
             
+        }
+
+        private async Task<ApplicationUser> GetCurrentUser()
+        {
+
+            var userid = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
+           return  await _userManager.FindByIdAsync(userid);
         }
 
 
