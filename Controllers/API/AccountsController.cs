@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RfidSPA.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -72,15 +73,90 @@ namespace RfidSPA.Controllers.API
 
             return new OkResult();
         }
-
-
-
-        
-
-        [HttpGet]
-        public string get()
+        // POST api/accounts
+        [HttpPost("updateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody]RegistrationViewModel model)
         {
-            return "fkfòsfsgsdg";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var appUser = await  _userManager.FindByEmailAsync(model.Email);
+
+            if(appUser == null)
+            {
+                return NotFound();
+            }
+
+            appUser.FirstName = model.FirstName;
+            appUser.LastName = model.LastName;
+
+            var result = await _userManager.UpdateAsync(appUser); 
+
+            var roles =  await _userManager.GetRolesAsync(appUser);
+
+            if(!roles.Contains(model.Role))
+            {
+               await   _userManager.RemoveFromRolesAsync(appUser, roles.ToArray());
+                await _userManager.AddToRoleAsync(appUser, model.Role);
+
+            }
+          
+            if (!result.Succeeded)
+                return
+                    new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new OkResult();
+        }
+
+
+
+
+
+
+        [HttpGet("allusers")]
+        public async Task<List<ApplicationUserVM>> getAllApplicationusers()
+        {
+            List <ApplicationUserVM> listUsers = new List<ApplicationUserVM>();
+            var users = _userManager.Users.Include(u => u.Roles).ToList();
+
+            foreach (var user in users)
+            {
+                var Roles = await _userManager.GetRolesAsync(user);
+
+                var appuser = new ApplicationUserVM
+                {
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Roles = Roles.ToList()
+                };
+
+                listUsers.Add(appuser);
+
+            }
+
+            return await Task.FromResult(listUsers);
+                
+        }
+
+        [HttpGet("userDetail/{email}")]
+        public async Task<ApplicationUserVM> getAllApplicationuserDetails(string email)
+        {
+            ApplicationUserVM  appusers = new ApplicationUserVM();
+            var user = await _userManager.FindByEmailAsync(email);
+            var Roles = await _userManager.GetRolesAsync(user);
+
+            return await Task.FromResult(new ApplicationUserVM
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Roles = Roles.ToList()
+            });
+
         }
 
         [HttpPost("ChangePassword")]
