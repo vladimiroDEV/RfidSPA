@@ -29,5 +29,10 @@ namespace RfidSPA.Models.Entities
 
         public long? AnagraficaID { get; set; }
 
+        public long? StoreID { get; set; }
+
+        public virtual Store Store { get; set; }
+
+
     }
 }

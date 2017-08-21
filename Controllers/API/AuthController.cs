@@ -76,7 +76,7 @@ namespace RfidSPA.Controllers.API
             // Serialize and return the response
             var response = new
             {
-
+                userMail = user.Email,
                 Rfid_AppliactionUserID = userID, 
                 userRoles = userRole,
                 auth_token = await _jwtFactory.GenerateEncodedToken(credentials.UserName, identity),
