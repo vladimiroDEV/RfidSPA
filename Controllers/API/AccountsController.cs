@@ -111,6 +111,41 @@ namespace RfidSPA.Controllers.API
             return new OkResult();
         }
 
+        [HttpPost("DeleteUser")]
+        public async Task<IActionResult> DeleteUser([FromBody]string email)
+        {
+          
+            var appUser = await _userManager.FindByEmailAsync(email);
+
+            if (appUser == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var roles = await _userManager.GetRolesAsync(appUser);
+                if (roles != null)
+                {
+                    await _userManager.RemoveFromRolesAsync(appUser, roles.ToArray());
+
+                }
+
+                await _userManager.DeleteAsync(appUser);
+
+                return Ok();
+
+
+            }
+            catch(Exception e)
+            {
+                return BadRequest();
+
+            }
+
+        }
+
+
 
 
 
@@ -176,6 +211,8 @@ namespace RfidSPA.Controllers.API
 
            
         }
+
+
 
     }
 }
