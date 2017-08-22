@@ -62,16 +62,8 @@ namespace RfidSPA.Controllers.API
 
             var userID = identity.Claims.Single(c => c.Type == "id").Value;
            var  userRole = await _userManager.GetRolesAsync(user);
-            long? storeID = null;
-            if(userRole.Contains(UserRolesConst.StoreAdministrator) || userRole.Contains(UserRolesConst.StoreOperator))
-            {
 
-                storeID = await _storeRepository.GetstoreIdByUser(userID);
-
-            }
-
-
-
+          
 
             // Serialize and return the response
             var response = new
@@ -81,7 +73,6 @@ namespace RfidSPA.Controllers.API
                 userRoles = userRole,
                 auth_token = await _jwtFactory.GenerateEncodedToken(credentials.UserName, identity),
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds,
-                store_id = storeID
             };
 
             var json = JsonConvert.SerializeObject(response, _serializerSettings);

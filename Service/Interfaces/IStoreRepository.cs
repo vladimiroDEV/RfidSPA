@@ -5,7 +5,7 @@ namespace RfidSPA.Service
 {
     public interface IStoreRepository
     {
-        Task<bool> CreateStore(Store stroreModel);
+        Task<long> CreateStore(Store stroreModel);
 
         Task<long> GetstoreIdByUser(string userID);
     }

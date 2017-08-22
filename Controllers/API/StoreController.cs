@@ -27,11 +27,29 @@ namespace RfidSPA.Controllers.API
         {
 
             var res = await _storeRepository.CreateStore(store);
-            if (!res) return BadRequest();
+            if (res < 0) return BadRequest();
 
-            return Ok();
+            var result = new
+            {
+                store_id = res
+            };
+
+            return new  OkObjectResult(result);
         }
-        //gtstore 
+
+        [HttpPost("GetStoreID")]
+        public async Task<IActionResult> GetStoreIdByUser([FromBody] string email)
+        {
+            var res =  await _storeRepository.GetstoreIdByUser(email);
+
+            if (res < 0) return BadRequest();
+            var result = new
+            {
+                store_id = res
+            };
+
+            return new OkObjectResult(result);
+        }
 
 
         //create Store

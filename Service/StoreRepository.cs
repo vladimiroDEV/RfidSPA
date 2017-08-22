@@ -32,43 +32,60 @@ namespace RfidSPA.Service
 
         }
 
-        public async Task<bool> CreateStore(Store stroreModel)
+        public async Task<long> CreateStore(Store stroreModel)
         {
-            var userid = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
 
-
-            Store newStore = new Store
+            try
             {
-                Name = stroreModel.Name,
-                Telefono = stroreModel.Telefono,
-                Address = stroreModel.Address,
-                CreationDate = DateTime.Now,
-                LastModifiedDate = DateTime.Now,
-                CreatorUser = userid,
-                AdministratorID = userid
-            };
+                var userid = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
 
-            StoreUsers storeUsers = new StoreUsers
+
+                Store newStore = new Store
+                {
+                    Name = stroreModel.Name,
+                    Telefono = stroreModel.Telefono,
+                    Address = stroreModel.Address,
+                    CreationDate = DateTime.Now,
+                    LastModifiedDate = DateTime.Now,
+                    CreatorUser = userid,
+                    AdministratorID = userid
+                };
+
+                StoreUsers storeUsers = new StoreUsers
+                {
+                    UserID = userid,
+                    UserRole = UserRolesConst.Administrator,
+                    Store = newStore
+
+                };
+
+
+
+                await _appDbContext.StoreUsers.AddAsync(storeUsers);
+                await _appDbContext.SaveChangesAsync();
+
+                var storeID = _appDbContext.StoreUsers.Where(i => i.UserID == userid).Select(i => i.StoreID).SingleOrDefault();
+                return storeID;
+            }
+            catch(Exception ex)
             {
-                UserID = userid,
-                UserRole = UserRolesConst.Administrator,
-                Store = newStore
-
-            };
-
-           
-
-            await _appDbContext.StoreUsers.AddAsync(storeUsers);
-            await _appDbContext.SaveChangesAsync();
-
-            return  true ;
+                return -100;
+            }
 
         }
 
 
         public async Task<long> GetstoreIdByUser(string userID)
         {
-            var id =   _appDbContext.StoreUsers.FirstOrDefault(i => i.UserID == userID).StoreID;
+            long id;
+            try
+            {
+              id  = _appDbContext.StoreUsers.FirstOrDefault(i => i.UserID == userID).StoreID;
+            }
+            catch(Exception ex)
+            {
+                id = -100;
+            }
 
             return  await Task.FromResult<long>(id);
 
