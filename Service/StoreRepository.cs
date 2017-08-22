@@ -74,6 +74,10 @@ namespace RfidSPA.Service
 
         }
 
+        public Store GetstoreByID(long ID)
+        {
+            return   _appDbContext.Store.Where(i => i.StoreID == ID).SingleOrDefault();
+        }
 
         public async Task<long> GetstoreIdByUser(string userID)
         {

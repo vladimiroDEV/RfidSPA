@@ -8,5 +8,7 @@ namespace RfidSPA.Service
         Task<long> CreateStore(Store stroreModel);
 
         Task<long> GetstoreIdByUser(string userID);
+
+        Store GetstoreByID(long  ID);
     }
 }

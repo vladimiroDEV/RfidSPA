@@ -13,4 +13,12 @@ namespace RfidSPA.ViewModels
         public string LastName { get; set; }
         public string Role { get; set; }
     }
+
+    public class RegistrationOpeatorViewModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Name { get; set; }
+        public long StoreId { get; set; }
+    }
 }

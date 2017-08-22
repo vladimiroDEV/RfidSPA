@@ -26,6 +26,7 @@ namespace RfidSPA.Controllers.API
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger _logger;
         private readonly ApplicationDbContext _appDbContext;
+        private readonly IStoreRepository _stroeRepository;
 
         private readonly IAccountRepository _accountRepository;
 
@@ -34,6 +35,7 @@ namespace RfidSPA.Controllers.API
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILoggerFactory loggerFactory,
+            IStoreRepository storeRep,
             ApplicationDbContext appDbContext)
         {
             _accountRepository = accountRepository;
@@ -41,6 +43,7 @@ namespace RfidSPA.Controllers.API
             _signInManager = signInManager;
             _appDbContext = appDbContext;
             _logger = loggerFactory.CreateLogger<AccountsController>();
+            _stroeRepository = storeRep;
         }
 
 
@@ -213,6 +216,49 @@ namespace RfidSPA.Controllers.API
         }
 
 
+        [HttpPost("createOperator")]
+        public async Task<IActionResult> CreateOperator([FromBody] RegistrationOpeatorViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var ApplicationUser = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.Name,
+               
+            };
+
+            var result = await _userManager.CreateAsync(ApplicationUser, model.Password);
+
+            if (!result.Succeeded)
+                return
+                    new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
+
+            await _userManager.AddToRoleAsync(ApplicationUser, UserRolesConst.StoreOperator);
+
+
+            await _appDbContext.SaveChangesAsync();
+          
+            ApplicationUser appUser = await _userManager.FindByEmailAsync(model.Email);
+
+
+
+             await _appDbContext.StoreUsers.AddAsync(new StoreUsers
+            {
+                StoreID = model.StoreId,
+                   UserID = appUser.Id,
+                UserRole = UserRolesConst.StoreOperator
+
+            });
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new OkResult();
+        }
 
     }
 }
