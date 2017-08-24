@@ -18,6 +18,8 @@ namespace RfidSPA.Data
         public DbSet<Store> Store { get; set; }
         public DbSet<StoreUsers> StoreUsers { get; set; }
 
+        public DbSet<TypeDeviceHistoryOperation> TypeDeviceHistoryOperations { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

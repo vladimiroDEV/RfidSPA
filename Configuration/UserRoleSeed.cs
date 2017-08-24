@@ -11,6 +11,7 @@ namespace RfidSPA.Configuration
     public class UserRoleSeed
     {
         private readonly RoleManager<IdentityRole> _roleManager;
+
         public UserRoleSeed(RoleManager<IdentityRole> roleManager)
         {
             _roleManager = roleManager;
@@ -32,6 +33,9 @@ namespace RfidSPA.Configuration
                     await _roleManager.CreateAsync(new IdentityRole { Name = item });
                 }
             }
+
+
+            
         }
     }
 }

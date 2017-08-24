@@ -166,6 +166,10 @@ namespace WebApplicationBasic
             });
 
             new UserRoleSeed(app.ApplicationServices.GetService<RoleManager<IdentityRole>>()).Seed();
+
+            new HelperEntityConfSeed(app.ApplicationServices.GetService<ApplicationDbContext>()).Seed();
+
+
         }
     }
 }

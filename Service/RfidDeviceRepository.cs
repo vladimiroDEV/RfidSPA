@@ -20,7 +20,7 @@ namespace RfidSPA.Service
         private readonly ILogger _logger;
 
 
-        public RfidDeviceRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAcessor, ILoggerFactory loggerFactory, )
+        public RfidDeviceRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAcessor, ILoggerFactory loggerFactory)
         {
             _appDbContext = context;
             _httpContextAcessor = httpContextAcessor;
@@ -46,6 +46,8 @@ namespace RfidSPA.Service
         {
             return _appDbContext.RfidDevice.Where(i => i.RfidDeviceID == id).SingleOrDefault();
         }
+
+
 
         public List<RfidDevice> RfidsByAnagraficaID(long ID)
         {
@@ -300,23 +302,6 @@ namespace RfidSPA.Service
 
   
 
-        void updateRfidHistory(RfidDevice rfid, RfidOperations operation)
-        {
-
-            RfidDeviceHistory rfidHistory = new RfidDeviceHistory();
-           
-            rfidHistory.RfidDeviceCode = rfid.RfidDeviceCode;
-            rfidHistory.InsertDate = DateTime.Now;
-            rfidHistory.RfidDeviceOperation = (int)operation;
-            rfidHistory.ApplicationUserID = rfid.ApplicationUserID;
-            rfidHistory.Active = rfid.Active;
-            rfidHistory.AnagraficaID = rfid.AnagraficaID;
-
-            _appDbContext.RfidDeviceHistory.AddAsync(rfidHistory);
-            _appDbContext.SaveChanges();
-
-
-        }
 
         List<RfidDevice> getDeviceByUser(long id, bool? active = true)
         {
@@ -333,13 +318,43 @@ namespace RfidSPA.Service
             return result;
         }
 
-        public Task<int> createRfidDevice(RfidDevice device)
+        public   Task<int> createRfidDevice(RfidDevice device)
         { 
             try
             {
-               _appDbContext.RfidDevice.AddAsync(device);
-               _appDbContext.SaveChangesAsync();
-                return Task.FromResult(1);
+                var  l_device = _appDbContext.RfidDevice.Where(d => d.RfidDeviceCode == device.RfidDeviceCode).SingleOrDefault();
+                
+
+                // se è null crea uno nuovo 
+                if(l_device == null)
+                { 
+                    l_device.RfidDeviceCode = device.RfidDeviceCode;
+                    l_device.ExpirationDate =device.ExpirationDate;
+                    l_device.CreationDate = DateTime.Now;
+                    l_device.LastModifiedDate = DateTime.Now;
+                    l_device.Credit = 0;
+                    l_device.ApplicationUserID = device.ApplicationUserID;
+                    l_device.StoreID = device.StoreID;
+                    l_device.Active = true;
+
+                    RfidDeviceHistory history = new RfidDeviceHistory
+                    {
+                        RfidDevice = l_device,
+                        InsertDate = DateTime.Now,
+                        TypeOperation = (int)TypeDeviceHistoryOperationEN.CreazioneDevice
+                    };
+                    _appDbContext.RfidDevice.AddAsync(l_device);
+                    _appDbContext.RfidDeviceHistory.AddAsync(history);
+
+                    _appDbContext.SaveChanges();
+
+                    return Task.FromResult(1); 
+                }
+                else
+                {
+                    return  Task.FromResult(-1); // device exists
+                }
+
             }
             catch (Exception ex)
             {
@@ -367,6 +382,28 @@ namespace RfidSPA.Service
             {
                 _logger.LogError(ex.ToString());
                 return Task.FromResult(0);
+            }
+        }
+
+        public async  Task<int> JoinDeviseToAnagrafica(RfidDevice device)
+        {
+            var createRes =  await  createRfidDevice(device);
+
+            var l_anagrafica = _appDbContext.Anagrafica.Where(i => i.AnagraficaID == device.AnagraficaID).SingleOrDefault();
+            if(l_anagrafica == null) // crea nuova anagrafica 
+            {
+
+                l_anagrafica.CreationDate = DateTime.Now;
+                l_anagrafica.ApplicationUserID = device.ApplicationUserID;
+                l_anagrafica.
+                _appDbContext.Anagrafica.Add(anag);
+                _appDbContext.SaveChanges();
+
+            }
+            if(createRes == -1 ) // device Esiste 
+            {
+              
+
             }
         }
 

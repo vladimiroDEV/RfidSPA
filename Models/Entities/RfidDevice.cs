@@ -28,15 +28,13 @@ namespace RfidSPA.Models.Entities
         public bool Active { get; set; }
 
         public long? AnagraficaID { get; set; }
+        public virtual Anagrafica Anagrafica { get; set; }
 
         public long? StoreID { get; set; }
-
         public virtual Store Store { get; set; }
 
         public virtual List<RfidDeviceTransaction> RfidDeviceTransaction { get; set; }
-        public virtual List<RfidDeviceHistory> RfidDeviceHistory { get; set; }
-
-        
+    
 
 
     }
