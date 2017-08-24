@@ -37,6 +37,52 @@ namespace RfidSPA.Controllers.API
             return new  OkObjectResult(result);
         }
 
+          [HttpPost("updateStore")]
+        public  async Task<IActionResult> Update([FromBody]Store store)
+        {
+            var l_store = await _storeRepository.UpdateStore(store);
+
+            if (l_store == -1) return NotFound();
+
+            if (l_store == 0) return BadRequest();
+            return Ok();
+
+        }
+        [HttpPost("deleteStore")]
+        public async Task<IActionResult> DeleteStore([FromBody]long  storeID)
+        {
+            var l_store = await _storeRepository.DeleteStore(storeID);
+
+            if (l_store == -1) return NotFound();
+
+            if (l_store == 0) return BadRequest();
+            return Ok();
+
+        }
+        [HttpPost("AddOperator")]
+        public async Task<IActionResult> addOperator([FromBody]Store store)
+        {
+            var l_store = await _storeRepository.AddStoreOperator(store.StoreID, store.storeUsers.First());
+
+            if (l_store == -1) return NotFound();
+
+            if (l_store == 0) return BadRequest();
+            return Ok();
+
+        }
+
+        [HttpPost("RemoveOperator")]
+        public async Task<IActionResult> RemoveOperator([FromBody]Store store)
+        {
+            var l_store = await _storeRepository.RemoveStoreOperator(store.StoreID, store.storeUsers.First().ApplicationUserID);
+
+            if (l_store == -1) return NotFound();
+
+            if (l_store == 0) return BadRequest();
+            return Ok();
+
+        }
+
         [HttpPost("GetStoreID")]
         public async Task<IActionResult> GetStoreIdByUser([FromBody] string email)
         {

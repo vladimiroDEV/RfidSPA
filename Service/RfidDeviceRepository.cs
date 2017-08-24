@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RfidSPA.Data;
 using RfidSPA.Models.Entities;
 using RfidSPA.Service.Interfaces;
@@ -13,16 +14,18 @@ namespace RfidSPA.Service
 {
     public class RfidDeviceRepository : IRfidDeviceRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _appDbContext;
         private readonly IHttpContextAccessor _httpContextAcessor;
         private readonly string _appCurrentUserID;
+        private readonly ILogger _logger;
 
 
-        public RfidDeviceRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAcessor)
+        public RfidDeviceRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAcessor, ILoggerFactory loggerFactory, )
         {
-            _context = context;
+            _appDbContext = context;
             _httpContextAcessor = httpContextAcessor;
             _appCurrentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
+            _logger = loggerFactory.CreateLogger<RfidDeviceRepository>();
         }
 
 
@@ -30,23 +33,23 @@ namespace RfidSPA.Service
         public IEnumerable<RfidDevice> GetAllRfids()
         {
 
-            return _context.RfidDevice.ToList();
+            return _appDbContext.RfidDevice.ToList();
         }
 
 
         public RfidDevice RfidByCode(string code)
         {
-            return _context.RfidDevice.Where(i => i.RfidDeviceCode == code && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
+            return _appDbContext.RfidDevice.Where(i => i.RfidDeviceCode == code && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
         }
 
         public RfidDevice RfidByID(long id)
         {
-            return _context.RfidDevice.Where(i => i.RfidDeviceID == id).SingleOrDefault();
+            return _appDbContext.RfidDevice.Where(i => i.RfidDeviceID == id).SingleOrDefault();
         }
 
         public List<RfidDevice> RfidsByAnagraficaID(long ID)
         {
-            return _context.RfidDevice.Where(i => i.AnagraficaID == ID && i.ApplicationUserID == _appCurrentUserID).ToList();
+            return _appDbContext.RfidDevice.Where(i => i.AnagraficaID == ID && i.ApplicationUserID == _appCurrentUserID).ToList();
         }
 
         public bool CeateNewRfid(AnagraficaRfidDeviceModel  item)
@@ -54,7 +57,7 @@ namespace RfidSPA.Service
 
             try
             {
-                var l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
+                var l_anag = _appDbContext.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
 
                 // check id user exists 
                 // se user non esiste crea uno nuovo 
@@ -63,16 +66,16 @@ namespace RfidSPA.Service
                     Anagrafica anag = item.anagrafica;
                     anag.CreationDate = DateTime.Now;
                     anag.ApplicationUserID =  _appCurrentUserID;
-                    _context.Anagrafica.Add(anag);
-                    _context.SaveChanges();
+                    _appDbContext.Anagrafica.Add(anag);
+                    _appDbContext.SaveChanges();
 
-                    l_anag = _context.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
+                    l_anag = _appDbContext.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
 
                 }
 
                 item.anagrafica.AnagraficaID = l_anag.AnagraficaID;
                
-                var rfid = _context.RfidDevice
+                var rfid = _appDbContext.RfidDevice
                     .Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode && i.ApplicationUserID == _appCurrentUserID)
                     .SingleOrDefault();
 
@@ -86,8 +89,8 @@ namespace RfidSPA.Service
                     rfid.Active = true;
 
                     //update
-                    _context.RfidDevice.Update(rfid);
-                    _context.SaveChanges();
+                    _appDbContext.RfidDevice.Update(rfid);
+                    _appDbContext.SaveChanges();
 
                     //aggiorna history
                     updateRfidHistory(rfid, RfidOperations.Assegna);
@@ -106,8 +109,8 @@ namespace RfidSPA.Service
                     l_rfid.Active = true;
                     l_rfid.AnagraficaID = l_anag.AnagraficaID;
 
-                    _context.RfidDevice.AddAsync(l_rfid);
-                    _context.SaveChanges();
+                    _appDbContext.RfidDevice.AddAsync(l_rfid);
+                    _appDbContext.SaveChanges();
 
                     //aggiorna history
                     updateRfidHistory(l_rfid, RfidOperations.Assegna);
@@ -148,9 +151,9 @@ namespace RfidSPA.Service
                     trans.PaydOff = false;
 
                     rfid.Credit += paidModel.Price;
-                    _context.Update(rfid);
-                    _context.RfidDeviceTransaction.Add(trans);
-                    _context.SaveChanges();
+                    _appDbContext.Update(rfid);
+                    _appDbContext.RfidDeviceTransaction.Add(trans);
+                    _appDbContext.SaveChanges();
                 }
                 else result = false;
             }
@@ -172,14 +175,14 @@ namespace RfidSPA.Service
 
             try
             {
-                var listTr = _context.RfidDeviceTransaction
+                var listTr = _appDbContext.RfidDeviceTransaction
                 .Where(i => i.PaydOff == false
                         && i.RfidDeviceCode == code
                         && i.AnagraficaID != null
                         && i.ApplicationUserID == _appCurrentUserID
                         && i.TransactionOperation == (int)TransactionOperation.Pagamento)
                  .ToList();
-                var rfid = _context.RfidDevice
+                var rfid = _appDbContext.RfidDevice
                     .Where(i => i.RfidDeviceCode == code
                        && i.AnagraficaID != null
                        && i.ApplicationUserID == _appCurrentUserID)
@@ -193,14 +196,14 @@ namespace RfidSPA.Service
                     {
                         item.PaydOff = true;
                         item.PaydOffDate = DateTime.Now;
-                        _context.RfidDeviceTransaction.Update(item);
+                        _appDbContext.RfidDeviceTransaction.Update(item);
 
                     }
                 }
                 if (rfid != null){
 
 
-                    _context.RfidDeviceTransaction.Add(new RfidDeviceTransaction
+                    _appDbContext.RfidDeviceTransaction.Add(new RfidDeviceTransaction
                     {
                         AnagraficaID = rfid.AnagraficaID,
                         ApplicationUserID = rfid.ApplicationUserID,
@@ -214,8 +217,8 @@ namespace RfidSPA.Service
                     });
                     rfid.Credit = 0;
                     rfid.AnagraficaID = null;
-                    _context.Update(rfid);
-                    _context.SaveChanges();
+                    _appDbContext.Update(rfid);
+                    _appDbContext.SaveChanges();
                     updateRfidHistory(rfid, RfidOperations.Restituisci);
 
 
@@ -258,7 +261,7 @@ namespace RfidSPA.Service
 
             List<RfidDeviceTransaction> listTr = new List<RfidDeviceTransaction>();
 
-            listTr = _context.RfidDeviceTransaction
+            listTr = _appDbContext.RfidDeviceTransaction
                 .Where(i => i.PaydOff == false
                         && i.RfidDeviceCode == code
                         && i.AnagraficaID != null
@@ -271,7 +274,7 @@ namespace RfidSPA.Service
 
         public UserDetailViewModel getGeatailUserByEmail(string email)
         {
-            var user = _context.Anagrafica.Where(i => i.Email == email).SingleOrDefault();
+            var user = _appDbContext.Anagrafica.Where(i => i.Email == email).SingleOrDefault();
 
             if (user == null) return null;
 
@@ -281,7 +284,7 @@ namespace RfidSPA.Service
 
         public UserDetailViewModel getGeatailUserByRfidCode(string code)
         {
-            var disp = _context.RfidDevice
+            var disp = _appDbContext.RfidDevice
                 .Where(i => i.RfidDeviceCode == code
                     && i.Active == true
                     && i.AnagraficaID != null
@@ -289,13 +292,13 @@ namespace RfidSPA.Service
                 .SingleOrDefault();
 
             if (disp == null) return null;
-            var user = _context.Anagrafica.Where(i => i.AnagraficaID == disp.AnagraficaID).SingleOrDefault();
+            var user = _appDbContext.Anagrafica.Where(i => i.AnagraficaID == disp.AnagraficaID).SingleOrDefault();
 
             if (user == null) return null;
             return new UserDetailViewModel { Anagrafica = user, Dispositivi = getDeviceByUser(user.AnagraficaID, true) };
         }
 
-        #region localMethos 
+  
 
         void updateRfidHistory(RfidDevice rfid, RfidOperations operation)
         {
@@ -309,22 +312,94 @@ namespace RfidSPA.Service
             rfidHistory.Active = rfid.Active;
             rfidHistory.AnagraficaID = rfid.AnagraficaID;
 
-            _context.RfidDeviceHistory.AddAsync(rfidHistory);
-            _context.SaveChanges();
+            _appDbContext.RfidDeviceHistory.AddAsync(rfidHistory);
+            _appDbContext.SaveChanges();
 
 
         }
 
         List<RfidDevice> getDeviceByUser(long id, bool? active = true)
         {
-            return _context.RfidDevice.Where(i => i.AnagraficaID == id && i.Active == active).ToList();
+            return _appDbContext.RfidDevice.Where(i => i.AnagraficaID == id && i.Active == active).ToList();
         }
+
+
+        // new 
 
         public async  Task<List<RfidDevice>> getDevicesByApplicationUsers()
         {
 
-            var result = await _context.RfidDevice.Where(i => i.ApplicationUserID == _appCurrentUserID).ToListAsync();
+            var result = await _appDbContext.RfidDevice.Where(i => i.ApplicationUserID == _appCurrentUserID).ToListAsync();
             return result;
+        }
+
+        public Task<int> createRfidDevice(RfidDevice device)
+        { 
+            try
+            {
+               _appDbContext.RfidDevice.AddAsync(device);
+               _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+        }
+
+        public Task<int> UpdateDevice(RfidDevice device)
+        {
+            var l_device = _appDbContext.RfidDevice.Where(i => i.RfidDeviceID == device.RfidDeviceID).SingleOrDefault();
+            if (l_device == null) return Task.FromResult(-1);
+
+            try
+            {
+                l_device.Active = device.Active;
+                l_device.AnagraficaID = device.AnagraficaID;
+                l_device.Credit = device.Credit;
+                l_device.LastModifiedDate = DateTime.Now;
+                _appDbContext.RfidDevice.Update(l_device);
+                _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+        }
+
+        public Task<int> LogicDeleteDevice(string deviceCode)
+        {
+            var l_device = _appDbContext.RfidDevice.Where(i => i.RfidDeviceCode == deviceCode).SingleOrDefault();
+            if (l_device == null) return Task.FromResult(-1);
+
+            try
+            {
+                l_device.Active = false;
+                l_device.AnagraficaID = null;
+                l_device.Credit = 0;
+                l_device.LastModifiedDate = DateTime.Now;
+                _appDbContext.RfidDevice.Update(l_device);
+                _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+        }
+
+        public Task<List<RfidDeviceTransaction>> GetDeviceDeviceTransactions(string deviceID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceID)
+        {
+            throw new NotImplementedException();
         }
 
 
@@ -333,7 +408,7 @@ namespace RfidSPA.Service
 
 
 
-        #endregion
+     
 
     }
 }

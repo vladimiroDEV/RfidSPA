@@ -33,6 +33,11 @@ namespace RfidSPA.Models.Entities
 
         public virtual Store Store { get; set; }
 
+        public virtual List<RfidDeviceTransaction> RfidDeviceTransaction { get; set; }
+        public virtual List<RfidDeviceHistory> RfidDeviceHistory { get; set; }
+
+        
+
 
     }
 }

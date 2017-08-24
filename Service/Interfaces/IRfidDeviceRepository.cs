@@ -9,6 +9,21 @@ namespace RfidSPA.Service.Interfaces
 {
     public interface IRfidDeviceRepository
     {
+
+        // new
+
+        Task<int> createRfidDevice(RfidDevice device);
+        Task<int> UpdateDevice(RfidDevice device);
+        Task<int> LogicDeleteDevice(string  deviceID);
+
+        Task<List<RfidDeviceTransaction>> GetDeviceDeviceTransactions(string deviceCode);
+        Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceCode);
+
+
+        //end new 
+
+
+
         IEnumerable<RfidDevice> GetAllRfids();
 
         RfidDevice RfidByCode(string code);

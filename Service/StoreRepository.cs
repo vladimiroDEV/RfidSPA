@@ -7,6 +7,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static RfidSPA.Helpers.Constants;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace RfidSPA.Service
 {
@@ -53,7 +55,7 @@ namespace RfidSPA.Service
 
                 StoreUsers storeUsers = new StoreUsers
                 {
-                    UserID = userid,
+                    ApplicationUserID = userid,
                     UserRole = UserRolesConst.Administrator,
                     Store = newStore
 
@@ -64,13 +66,35 @@ namespace RfidSPA.Service
                 await _appDbContext.StoreUsers.AddAsync(storeUsers);
                 await _appDbContext.SaveChangesAsync();
 
-                var storeID = _appDbContext.StoreUsers.Where(i => i.UserID == userid).Select(i => i.StoreID).SingleOrDefault();
+                var storeID = _appDbContext.StoreUsers.Where(i => i.ApplicationUserID == userid).Select(i => i.StoreID).SingleOrDefault();
                 return storeID;
             }
             catch(Exception ex)
             {
                 return -100;
             }
+
+        }
+
+        public Task<int> DeleteStore(long storeID)
+        {
+            var l_store = _appDbContext.Store.Where(i => i.StoreID == storeID).SingleOrDefault();
+            if (l_store == null) return Task.FromResult(-1);
+
+            try
+            {
+                l_store.Active = false;
+                l_store.LastModifiedDate = DateTime.Now;
+                _appDbContext.Store.Update(l_store);
+                 _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch(Exception ex )
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+
 
         }
 
@@ -84,7 +108,7 @@ namespace RfidSPA.Service
             long id;
             try
             {
-              id  = _appDbContext.StoreUsers.FirstOrDefault(i => i.UserID == userID).StoreID;
+              id  = _appDbContext.StoreUsers.FirstOrDefault(i => i.ApplicationUserID == userID).StoreID;
             }
             catch(Exception ex)
             {
@@ -95,8 +119,64 @@ namespace RfidSPA.Service
 
         }
 
+        public Task<int> UpdateStore(Store stroreModel)
+        {
+            var l_store = _appDbContext.Store.Where(i => i.StoreID == stroreModel.StoreID).SingleOrDefault();
+            if (l_store == null) return Task.FromResult(-1);
 
+            try
+            {
+                l_store.Active = stroreModel.Active;
+                l_store.Address = stroreModel.Address;
+                l_store.Name = stroreModel.Name;
+                l_store.LastModifiedDate = DateTime.Now;
+                _appDbContext.Store.Update(l_store);
+                _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
 
+        }
+
+        public Task<int> AddStoreOperator(long StoreID, StoreUsers storeUser)
+        {
+            var l_store = _appDbContext.Store.Where(i => i.StoreID == StoreID).SingleOrDefault();
+            if (l_store == null) return Task.FromResult(-1);
+            try
+            {
+                l_store.storeUsers.Add(storeUser);
+                _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+
+        }
+
+        public Task<int> RemoveStoreOperator(long StoreID, string  storeUserID)
+        {
+            var l_storeUser = _appDbContext.StoreUsers.Where(i => i.StoreID == StoreID && i.ApplicationUserID == storeUserID).SingleOrDefault();
+            if (l_storeUser == null) return Task.FromResult(-1);
+            try
+            {
+                _appDbContext.Remove(l_storeUser);
+                _appDbContext.SaveChangesAsync();
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Task.FromResult(0);
+            }
+
+        }
 
         private async Task<ApplicationUser> GetCurrentUser()
         {
@@ -105,6 +185,14 @@ namespace RfidSPA.Service
             return await _userManager.FindByIdAsync(userid);
         }
 
+        public Task<List<ApplicationUser>> GetStoreUsers(long StoreID)
+        {
+            var store = _appDbContext.Store.Include(u => u.storeUsers).ThenInclude(apppU=>apppU.ApplicationUser).FirstOrDefault();
+            if (store == null) return null;
+           
 
+            List<ApplicationUser> users = store.storeUsers.Select(u=>u.ApplicationUser).ToList();
+            return Task.FromResult(users);
+        }
     }
 }

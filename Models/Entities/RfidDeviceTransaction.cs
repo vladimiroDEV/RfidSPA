@@ -15,6 +15,10 @@ namespace RfidSPA.Models.Entities
 
         public string RfidDeviceCode { get; set; }
 
+        public string RfidDeviceID { get; set; }
+
+        public virtual RfidDevice RfidDevice { get; set; }
+
         public long? AnagraficaID { get; set; }
 
         public string ApplicationUserID { get; set; }

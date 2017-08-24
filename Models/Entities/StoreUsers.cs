@@ -9,7 +9,9 @@ namespace RfidSPA.Models.Entities
     {
         public long StoreUsersID { get; set; }
         public string UserRole { get; set; }
-        public string UserID { get; set; }
+        public string ApplicationUserID { get; set; }
+
+        public virtual ApplicationUser ApplicationUser { get; set;}
 
         public long StoreID { get; set; }
         public virtual Store Store { get; set; }
