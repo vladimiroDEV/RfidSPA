@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RfidSPA.Models.Entities
 {
-    public enum TypeDeviceHistoryOperationEN
+    public enum TypeDeviceHistoryOperation
     {
         CreazioneDevice = 1,
         JoinToAnagrafica =2,
@@ -15,11 +15,5 @@ namespace RfidSPA.Models.Entities
 
 
     }
-    public class TypeDeviceHistoryOperation
-    {
-        [Key]
-        public int TypeRfidDeviceOperationID { get; set; }
-        public string  Description { get; set; }
-
-    }
+  
 }

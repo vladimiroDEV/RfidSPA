@@ -26,22 +26,9 @@ namespace RfidSPA.Controllers.API
             _repositoryRfid = repositoryRfid;
             _repositoryAnagrafica = reposistoryAnagrafica;
         }
-        // GET: api/Rfid
-        [HttpGet]
-        [Authorize]
-        public IActionResult Get()
-        {
-            var result = _repositoryRfid.GetAllRfids();
-            return Ok(result);
-        }
+     
 
-        // GET: api/Rfid/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
-        {
-            return "value";
-
-        }
+    
         [HttpGet("code/{code}")]
         public IActionResult Get(string code)
         {
@@ -53,10 +40,11 @@ namespace RfidSPA.Controllers.API
 
 
 
-        // create 
+      
 
-        // POST: api/Rfid
-        [HttpPost("create")]
+
+        // POST: api/Rfid 
+        [HttpPost("create")]    // old
         public IActionResult Post([FromBody]AnagraficaRfidDeviceModel value)
         {
 

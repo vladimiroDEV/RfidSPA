@@ -19,9 +19,9 @@ namespace RfidSPA.Data
         public DbSet<RfidDeviceHistory> RfidDeviceHistory { get; set; }
         public DbSet<RfidDeviceTransaction> RfidDeviceTransaction { get; set; }
         public DbSet<Store> Store { get; set; }
-        public DbSet<StoreUsers> StoreUsers { get; set; }
+        public DbSet<StoreUser> StoreUsers { get; set; }
 
-        public DbSet<TypeDeviceHistoryOperation> TypeDeviceHistoryOperations { get; set; }
+    
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -37,10 +37,7 @@ namespace RfidSPA.Data
             builder.Entity<RfidDeviceTransaction>().ToTable("RfidDeviceTransaction");
         }
 
-        public static void Seed(IApplicationBuilder applicationBuilder)
-        {
-            new HelperEntityConfSeed(applicationBuilder.ApplicationServices.GetRequiredService<ApplicationDbContext>()).Seed();
-        }
+      
         
     }
 }

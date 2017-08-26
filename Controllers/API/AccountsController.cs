@@ -247,7 +247,7 @@ namespace RfidSPA.Controllers.API
 
 
 
-             await _appDbContext.StoreUsers.AddAsync(new StoreUsers
+             await _appDbContext.StoreUsers.AddAsync(new StoreUser
             {
                 StoreID = model.StoreId,
                    ApplicationUserID = appUser.Id,

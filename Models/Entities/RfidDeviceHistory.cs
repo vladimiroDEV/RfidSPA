@@ -13,8 +13,9 @@ namespace RfidSPA.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long RfidDeviceHistoryID { get; set; }
 
-        public string RfidDeviceID { get; set; }
+       public long RfidDeviceID { get; set; }
 
+        
         public virtual RfidDevice RfidDevice { get; set; }
 
         public DateTime? InsertDate { get; set; }
@@ -24,7 +25,5 @@ namespace RfidSPA.Models.Entities
         public string ApplicationUserID { get; set; }
 
         public int TypeOperation { get; set; }
-        [ForeignKey("TypeOperation")]
-        public virtual  TypeDeviceHistoryOperation TypeDeviceHistoryOperation { get; set; }
     }
 }

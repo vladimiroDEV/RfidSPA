@@ -53,7 +53,7 @@ namespace RfidSPA.Service
                     AdministratorID = userid
                 };
 
-                StoreUsers storeUsers = new StoreUsers
+                StoreUser storeUsers = new StoreUser
                 {
                     ApplicationUserID = userid,
                     UserRole = UserRolesConst.Administrator,
@@ -100,7 +100,10 @@ namespace RfidSPA.Service
 
         public async Task<Store> GetStoreByID(long StoreID)
         {
-            return await   _appDbContext.Store.Where(i => i.StoreID == StoreID).Include(op=>op.storeUsers).SingleOrDefaultAsync();
+            return await   _appDbContext.Store
+                .Where(i => i.StoreID == StoreID)
+                .Include(op=>op.storeUsers)
+                .ThenInclude(appUs =>appUs.ApplicationUser).SingleOrDefaultAsync();
         }
 
         public async Task<long> GetstoreIdByUser(string userID)
@@ -142,7 +145,7 @@ namespace RfidSPA.Service
 
         }
 
-        public Task<int> AddStoreOperator(long StoreID, StoreUsers storeUser)
+        public Task<int> AddStoreOperator(long StoreID, StoreUser storeUser)
         {
             var l_store = _appDbContext.Store.Where(i => i.StoreID == StoreID).SingleOrDefault();
             if (l_store == null) return Task.FromResult(-1);

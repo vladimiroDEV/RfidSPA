@@ -8,9 +8,10 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170826180639_Addstoretoanagrafica")]
+    partial class Addstoretoanagrafica
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -254,13 +255,17 @@ namespace RfidSPA.Migrations
 
                     b.Property<DateTime>("OperationDate");
 
-                    b.Property<long>("RfidDeviceID");
+                    b.Property<string>("RfidDeviceID");
+
+                    b.Property<long?>("RfidDeviceID1");
 
                     b.Property<int>("TypeOperation");
 
                     b.HasKey("RfidDeviceHistoryID");
 
-                    b.HasIndex("RfidDeviceID");
+                    b.HasIndex("RfidDeviceID1");
+
+                    b.HasIndex("TypeOperation");
 
                     b.ToTable("RfidDeviceHistory");
                 });
@@ -346,6 +351,18 @@ namespace RfidSPA.Migrations
                     b.ToTable("StoreUsers");
                 });
 
+            modelBuilder.Entity("RfidSPA.Models.Entities.TypeDeviceHistoryOperation", b =>
+                {
+                    b.Property<int>("TypeRfidDeviceOperationID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.HasKey("TypeRfidDeviceOperationID");
+
+                    b.ToTable("TypeDeviceHistoryOperations");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole")
@@ -410,7 +427,11 @@ namespace RfidSPA.Migrations
                 {
                     b.HasOne("RfidSPA.Models.Entities.RfidDevice", "RfidDevice")
                         .WithMany()
-                        .HasForeignKey("RfidDeviceID")
+                        .HasForeignKey("RfidDeviceID1");
+
+                    b.HasOne("RfidSPA.Models.Entities.TypeDeviceHistoryOperation", "TypeDeviceHistoryOperation")
+                        .WithMany()
+                        .HasForeignKey("TypeOperation")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

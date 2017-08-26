@@ -30,7 +30,7 @@ namespace RfidSPA.Models.Entities
 
         public bool Active { get; set; }
 
-        public virtual  List<StoreUsers> storeUsers { get; set; }
+        public virtual  List<StoreUser> storeUsers { get; set; }
 
         public  virtual ICollection<RfidDevice> Devices { get; set; }
 

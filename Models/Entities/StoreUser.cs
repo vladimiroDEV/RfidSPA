@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace RfidSPA.Models.Entities
 {
-    public class StoreUsers
+    public class StoreUser
     {
-        public long StoreUsersID { get; set; }
+        public long StoreUserID { get; set; }
         public string UserRole { get; set; }
 
         

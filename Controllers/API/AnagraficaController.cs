@@ -24,11 +24,11 @@ namespace RfidSPA.Controllers.API
             _repositoryAnagrafica = reposistoryAnagrafica;
         }
 
-        [HttpGet("emailLikes/{email}")]
+        [HttpGet("emailLikes/{storeID}/{email}")]
        
-        public string[] emailLikes(string email)
+        public string[] emailLikes(long storeID, string email)
         {        
-            return _repositoryAnagrafica.SearchEmailLike(email);
+            return _repositoryAnagrafica.SearchEmailLike(storeID, email);
         }
     }
 }

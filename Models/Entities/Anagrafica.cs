@@ -29,6 +29,9 @@ namespace RfidSPA.Models.Entities
 
         public string ApplicationUserID { get; set; }
 
+        public long StoreID { get; set; }
+        public virtual Store Store { get; set; }
+
         [ForeignKey("ApplicationUserID")]
         public virtual  ApplicationUser ApplicationUser { get; set; }
 

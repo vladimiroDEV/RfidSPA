@@ -334,7 +334,8 @@ namespace RfidSPA.Service
 
                 // se è null crea uno nuovo 
                 if(l_device == null)
-                { 
+                {
+                    l_device = new RfidDevice();
                     l_device.RfidDeviceCode = device.RfidDeviceCode;
                     l_device.ExpirationDate =device.ExpirationDate;
                     l_device.CreationDate = DateTime.Now;
@@ -344,16 +345,9 @@ namespace RfidSPA.Service
                     l_device.StoreID = device.StoreID;
                     l_device.Active = false;   // inizializzato a tru ando viene fatto join all anagrafica
 
-                    RfidDeviceHistory history = new RfidDeviceHistory
-                    {
-                        RfidDevice = l_device,
-                        InsertDate = DateTime.Now,
-                        TypeOperation = (int)TypeDeviceHistoryOperationEN.CreazioneDevice
-                    };
                     _appDbContext.RfidDevice.AddAsync(l_device);
-                    _appDbContext.RfidDeviceHistory.AddAsync(history);
-
                     _appDbContext.SaveChanges();
+                    AddHistoryDevice(l_device.RfidDeviceCode, l_device.StoreID, TypeDeviceHistoryOperation.CreazioneDevice);
 
                     return Task.FromResult(1); 
                 }
@@ -415,7 +409,8 @@ namespace RfidSPA.Service
 
                     var res = await _anagraficaReposity.CreateAnagrafica(device.Anagrafica);
                     if (res <= 0) return -1;
-                    l_anagrafica = _appDbContext.Anagrafica.Where(i => i.Email == device.Anagrafica.Email).SingleOrDefault();
+
+                    l_anagrafica = _appDbContext.Anagrafica.Where(i => i.Email == device.Anagrafica.Email && i.StoreID == device.StoreID).SingleOrDefault();
 
                 }
 
@@ -424,16 +419,13 @@ namespace RfidSPA.Service
                 l_device.JoinedDate = DateTime.Now;
                 l_device.Anagrafica = l_anagrafica;
 
-                RfidDeviceHistory history = new RfidDeviceHistory
-                {
-                    RfidDevice = l_device,
-                    InsertDate = DateTime.Now,
-                    TypeOperation = (int)TypeDeviceHistoryOperationEN.JoinToAnagrafica
-                };
-
-                _appDbContext.RfidDevice.Add(l_device);
-                _appDbContext.RfidDeviceHistory.Add(history);
+                _appDbContext.RfidDevice.Update(l_device);
                 _appDbContext.SaveChanges();
+
+                /// add to history
+                AddHistoryDevice(l_device.RfidDeviceCode, l_device.StoreID, TypeDeviceHistoryOperation.JoinToAnagrafica);
+
+
                 return 1;
             }catch(Exception e)
             {
@@ -472,6 +464,38 @@ namespace RfidSPA.Service
         public Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceID)
         {
             throw new NotImplementedException();
+        }
+
+
+        void AddHistoryDevice(string DeviceCode, long? StoreID, TypeDeviceHistoryOperation operation)
+        {
+            try
+            {
+
+                var h_device = _appDbContext.RfidDevice.Where(i => i.RfidDeviceCode == DeviceCode  && i.StoreID == StoreID).SingleOrDefault();
+                if(h_device != null)
+                {
+                    RfidDeviceHistory history = new RfidDeviceHistory
+                    {
+                        RfidDevice = h_device,
+                        OperationDate = DateTime.Now,
+                         ApplicationUserID = h_device.ApplicationUserID,
+                    
+                        InsertDate = DateTime.Now,
+                        TypeOperation = (int)operation
+                    };
+
+                    _appDbContext.RfidDeviceHistory.Add(history);
+                    _appDbContext.SaveChanges();
+
+                }
+               
+
+            }
+            catch(Exception e)
+            {
+
+            }
         }
 
 

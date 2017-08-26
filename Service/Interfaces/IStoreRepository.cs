@@ -17,7 +17,7 @@ namespace RfidSPA.Service
 
        
         
-        Task<int> AddStoreOperator(long StoreID, StoreUsers storeUser);
+        Task<int> AddStoreOperator(long StoreID, StoreUser storeUser);
         Task<int> RemoveStoreOperator(long StoreID, string storeUserID);
 
         Task <List<ApplicationUser>> GetStoreUsers(long StoreID);

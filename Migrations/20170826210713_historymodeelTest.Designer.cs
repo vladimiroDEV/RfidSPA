@@ -8,9 +8,10 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170826210713_historymodeelTest")]
+    partial class historymodeelTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -254,13 +255,9 @@ namespace RfidSPA.Migrations
 
                     b.Property<DateTime>("OperationDate");
 
-                    b.Property<long>("RfidDeviceID");
-
                     b.Property<int>("TypeOperation");
 
                     b.HasKey("RfidDeviceHistoryID");
-
-                    b.HasIndex("RfidDeviceID");
 
                     b.ToTable("RfidDeviceHistory");
                 });
@@ -404,14 +401,6 @@ namespace RfidSPA.Migrations
                     b.HasOne("RfidSPA.Models.Entities.Store", "Store")
                         .WithMany("Devices")
                         .HasForeignKey("StoreID");
-                });
-
-            modelBuilder.Entity("RfidSPA.Models.Entities.RfidDeviceHistory", b =>
-                {
-                    b.HasOne("RfidSPA.Models.Entities.RfidDevice", "RfidDevice")
-                        .WithMany()
-                        .HasForeignKey("RfidDeviceID")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("RfidSPA.Models.Entities.RfidDeviceTransaction", b =>

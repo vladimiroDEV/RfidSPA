@@ -51,11 +51,15 @@ namespace RfidSPA.Service
 
                
                 var l_anagrafica = _context.Anagrafica.Where(i => i.Email == anag.Email).SingleOrDefault();
+                var storeid = _context.StoreUsers.Where(i => i.ApplicationUserID == anag.ApplicationUserID).Select(i => i.StoreID).FirstOrDefault();
 
                 if (l_anagrafica != null) return Task.FromResult(-1);
-                anag.CreationDate = DateTime.Now;
-                _context.Anagrafica.AddAsync(anag);
-                _context.SaveChangesAsync();
+                l_anagrafica = new Anagrafica();
+                l_anagrafica = anag;
+                l_anagrafica.StoreID = storeid;
+                l_anagrafica.CreationDate = DateTime.Now;
+                _context.Anagrafica.Add(l_anagrafica);
+                _context.SaveChanges();
 
                return  Task.FromResult(1);
             }
@@ -89,12 +93,15 @@ namespace RfidSPA.Service
             return _context.Anagrafica.ToList();
         }
 
-        public string[] SearchEmailLike(string email)
+
+
+
+        public string[] SearchEmailLike(long storeID, string email)
         {
             
 
             var value =_context.Anagrafica
-                .Where(i => i.Email.Contains(email) && i.ApplicationUserID ==_currentUserID)
+                .Where(i => i.Email.Contains(email) && i.StoreID ==storeID)
                 .Select(i => i.Email)
                 .ToArray();
             return value;
