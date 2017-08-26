@@ -9,11 +9,13 @@ namespace RfidSPA.Service
         Task<long> CreateStore(Store stroreModel);
         Task<int> UpdateStore(Store stroreModel);
         Task<int> DeleteStore(long  storeID);
+        Task<Store> GetStoreByID(long StoreID);
+
 
 
         Task<long> GetstoreIdByUser(string userID);
 
-        Store GetstoreByID(long  ID);
+       
         
         Task<int> AddStoreOperator(long StoreID, StoreUsers storeUser);
         Task<int> RemoveStoreOperator(long StoreID, string storeUserID);

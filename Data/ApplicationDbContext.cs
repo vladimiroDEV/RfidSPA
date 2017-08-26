@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using RfidSPA.Configuration;
 using RfidSPA.Models.Entities;
 
 namespace RfidSPA.Data
@@ -32,6 +35,11 @@ namespace RfidSPA.Data
             builder.Entity<Anagrafica>().ToTable("Anagrafica");
             builder.Entity<RfidDeviceHistory>().ToTable("RfidDeviceHistory");
             builder.Entity<RfidDeviceTransaction>().ToTable("RfidDeviceTransaction");
+        }
+
+        public static void Seed(IApplicationBuilder applicationBuilder)
+        {
+            new HelperEntityConfSeed(applicationBuilder.ApplicationServices.GetRequiredService<ApplicationDbContext>()).Seed();
         }
         
     }

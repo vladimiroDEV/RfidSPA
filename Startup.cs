@@ -92,7 +92,10 @@ namespace WebApplicationBasic
                 options.SerializerSettings.ContractResolver =
                     new DefaultContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            }); 
+            });
+
+            services.AddTransient<HelperEntityConfSeed>();
+
             services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
             services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -101,8 +104,8 @@ namespace WebApplicationBasic
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline. 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, HelperEntityConfSeed _helperEntityConfSeed)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -168,7 +171,10 @@ namespace WebApplicationBasic
             new UserRoleSeed(app.ApplicationServices.GetService<RoleManager<IdentityRole>>()).Seed();
 
             new HelperEntityConfSeed(app.ApplicationServices.GetService<ApplicationDbContext>()).Seed();
+            
 
+            //  _helperEntityConfSeed.Seed();
+            // ApplicationDbContext.Seed(app);
 
         }
     }

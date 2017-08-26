@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RfidSPA.Service;
 using RfidSPA.Models.Entities;
+using RfidSPA.ViewModels;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -37,7 +38,7 @@ namespace RfidSPA.Controllers.API
             return new  OkObjectResult(result);
         }
 
-          [HttpPost("updateStore")]
+        [HttpPost("updateStore")]
         public  async Task<IActionResult> Update([FromBody]Store store)
         {
             var l_store = await _storeRepository.UpdateStore(store);
@@ -48,6 +49,7 @@ namespace RfidSPA.Controllers.API
             return Ok();
 
         }
+
         [HttpPost("deleteStore")]
         public async Task<IActionResult> DeleteStore([FromBody]long  storeID)
         {
@@ -59,6 +61,14 @@ namespace RfidSPA.Controllers.API
             return Ok();
 
         }
+
+        [HttpPost("GetStoreDetails")]
+        public async Task<Store> GetStoreDetails([FromBody]long storeID)
+        {
+            return await _storeRepository.GetStoreByID(storeID);
+
+        }
+
         [HttpPost("AddOperator")]
         public async Task<IActionResult> addOperator([FromBody]Store store)
         {
@@ -81,6 +91,14 @@ namespace RfidSPA.Controllers.API
             if (l_store == 0) return BadRequest();
             return Ok();
 
+        }
+
+        [HttpPost("GetOperators")]
+        public async Task<List<ApplicationUser>> GetOperators([FromBody]long StoreID)
+        {
+            var users =   await  _storeRepository.GetStoreUsers(StoreID);
+
+            return await Task.FromResult(users);
         }
 
         [HttpPost("GetStoreID")]

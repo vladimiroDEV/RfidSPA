@@ -2,8 +2,10 @@
 using RfidSPA.Models.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace RfidSPA.Configuration
 {
@@ -16,7 +18,7 @@ namespace RfidSPA.Configuration
         {
             _appDbContext = context;
         }
-        public  async void Seed()
+        public async   void Seed()
         {
 
             List<TypeDeviceHistoryOperation> typeDeviceHistoryOperations = new List<TypeDeviceHistoryOperation>()
@@ -27,11 +29,20 @@ namespace RfidSPA.Configuration
                 new TypeDeviceHistoryOperation {TypeRfidDeviceOperationID = 4, Description="Modifica Device"},
             };
 
-            foreach(var item in typeDeviceHistoryOperations)
+          
+            //var  l_items =  await  _appDbContext.TypeDeviceHistoryOperations.ToListAsync().ConfigureAwait(false);
+
+            foreach (var item in typeDeviceHistoryOperations)
             {
-                if (!_appDbContext.TypeDeviceHistoryOperations.Any(i => i.TypeRfidDeviceOperationID == item.TypeRfidDeviceOperationID))
+                try
                 {
-                  await  _appDbContext.TypeDeviceHistoryOperations.AddAsync(item);
+                    await _appDbContext.TypeDeviceHistoryOperations.AddAsync(item);
+                    await _appDbContext.SaveChangesAsync();
+                }
+
+               catch(Exception ex)
+                {
+                    
                 }
             }
           
