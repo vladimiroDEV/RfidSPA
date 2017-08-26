@@ -15,6 +15,8 @@ namespace RfidSPA.Service.Interfaces
         Task<int> createRfidDevice(RfidDevice device);
         Task<int> UpdateDevice(RfidDevice device);
         Task<int> LogicDeleteDevice(string  deviceID);
+        Task<int> JoinDeviseToAnagrafica(RfidDevice device);
+
 
         Task<List<RfidDeviceTransaction>> GetDeviceDeviceTransactions(string deviceCode);
         Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceCode);

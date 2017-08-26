@@ -15,5 +15,9 @@ namespace RfidSPA.Service.Interfaces
         Anagrafica AnagraficaByEmail(string email);
 
         string[] SearchEmailLike(string email);
+
+        Task<int> CreateAnagrafica(Anagrafica anag);
+        Task<int> UpdateAnagrafica(Anagrafica anag);
+        Task<int> DeleteAnagrafica(Anagrafica anag);
     }
 }

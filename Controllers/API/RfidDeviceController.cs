@@ -155,6 +155,21 @@ namespace RfidSPA.Controllers.API
 
         }
 
+        // new 
+
+        [HttpPost("JoinDeviseToAnagrafica")]
+
+        public async  Task<IActionResult> JoinDeviseToAnagrafica([FromBody] RfidDevice device)
+        {
+            var res = await  _repositoryRfid.JoinDeviseToAnagrafica(device);
+            if (res == 1) return Ok();
+            if (res == 2) return BadRequest("inUse");
+            if (res == -1) return BadRequest();
+
+            return BadRequest();
+        }
+
+
 
     }
 }

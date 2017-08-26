@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,6 +28,9 @@ namespace RfidSPA.Models.Entities
         public DateTime? LastModifiedDate { get; set; }
 
         public string ApplicationUserID { get; set; }
+
+        [ForeignKey("ApplicationUserID")]
+        public virtual  ApplicationUser ApplicationUser { get; set; }
 
     }
 }

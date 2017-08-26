@@ -24,11 +24,13 @@ namespace RfidSPA.Models.Entities
         public double? Credit { get; set; }
 
         public string  ApplicationUserID { get; set; }
+      
 
         public bool Active { get; set; }
 
         public long? AnagraficaID { get; set; }
         public virtual Anagrafica Anagrafica { get; set; }
+        public DateTime? JoinedDate { get; set; }
 
         public long? StoreID { get; set; }
         public virtual Store Store { get; set; }

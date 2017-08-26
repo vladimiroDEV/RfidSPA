@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace RfidSPA.Service
 {
@@ -43,6 +44,46 @@ namespace RfidSPA.Service
             return _context.Anagrafica.Where(i => i.AnagraficaID == ID).SingleOrDefault();
         }
 
+        public Task<int> CreateAnagrafica(Anagrafica anag)
+        {
+            try
+            {
+
+               
+                var l_anagrafica = _context.Anagrafica.Where(i => i.Email == anag.Email).SingleOrDefault();
+
+                if (l_anagrafica != null) return Task.FromResult(-1);
+                anag.CreationDate = DateTime.Now;
+                _context.Anagrafica.AddAsync(anag);
+                _context.SaveChangesAsync();
+
+               return  Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(0);
+            }
+        }
+
+        public Task<int> DeleteAnagrafica(Anagrafica anag)
+        {
+            try
+            {
+                var l_anagrafica = _context.Anagrafica.Where(i => i.Email == anag.Email).SingleOrDefault();
+
+                if (l_anagrafica == null) return Task.FromResult(-1);
+
+                _context.Anagrafica.Remove(l_anagrafica);
+                _context.SaveChangesAsync();
+
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(0);
+            }
+        }
+
         public IEnumerable<Anagrafica> GetAllAnagrafics()
         {
             return _context.Anagrafica.ToList();
@@ -57,6 +98,30 @@ namespace RfidSPA.Service
                 .Select(i => i.Email)
                 .ToArray();
             return value;
+        }
+
+        public Task<int> UpdateAnagrafica(Anagrafica anag)
+        {
+         try
+            {
+                var l_anagrafica = _context.Anagrafica.Where(i => i.Email == anag.Email).SingleOrDefault();
+
+                if (l_anagrafica == null) return Task.FromResult(-1);
+
+                l_anagrafica.Cognome = anag.Cognome;
+                l_anagrafica.Nome = anag.Nome;
+                l_anagrafica.LastModifiedDate = DateTime.Now;
+                l_anagrafica.Telefono = anag.Telefono;
+
+                _context.Anagrafica.Update(l_anagrafica);
+                _context.SaveChangesAsync();
+
+                return Task.FromResult(1);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(0);
+            }
         }
     }
 }
