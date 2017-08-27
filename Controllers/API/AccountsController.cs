@@ -150,15 +150,11 @@ namespace RfidSPA.Controllers.API
 
 
 
-
-
-
-
         [HttpGet("allusers")]
         public async Task<List<ApplicationUserVM>> getAllApplicationusers()
         {
             List <ApplicationUserVM> listUsers = new List<ApplicationUserVM>();
-            var users = _userManager.Users.Include(u => u.Roles).ToList();
+            var users = _userManager.Users.ToList();
 
             foreach (var user in users)
             {
