@@ -8,9 +8,10 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170826212225_TransactionChange_2")]
+    partial class TransactionChange_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -284,9 +285,7 @@ namespace RfidSPA.Migrations
 
                     b.Property<string>("RfidDeviceCode");
 
-                    b.Property<long>("RfidDeviceID");
-
-                    b.Property<long>("StoreID");
+                    b.Property<long?>("RfidDeviceID");
 
                     b.Property<DateTime>("TransactionDate");
 
@@ -297,8 +296,6 @@ namespace RfidSPA.Migrations
                     b.HasIndex("AnagraficaID");
 
                     b.HasIndex("RfidDeviceID");
-
-                    b.HasIndex("StoreID");
 
                     b.ToTable("RfidDeviceTransaction");
                 });
@@ -424,15 +421,9 @@ namespace RfidSPA.Migrations
                         .WithMany()
                         .HasForeignKey("AnagraficaID");
 
-                    b.HasOne("RfidSPA.Models.Entities.RfidDevice", "RfideDevice")
+                    b.HasOne("RfidSPA.Models.Entities.RfidDevice")
                         .WithMany("RfidDeviceTransaction")
-                        .HasForeignKey("RfidDeviceID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("RfidSPA.Models.Entities.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("RfidDeviceID");
                 });
 
             modelBuilder.Entity("RfidSPA.Models.Entities.StoreUser", b =>

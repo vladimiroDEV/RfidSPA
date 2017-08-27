@@ -39,31 +39,19 @@ namespace RfidSPA.Controllers.API
 
 
 
-
-      
-
-
-        // POST: api/Rfid 
-        [HttpPost("create")]    // old
-        public IActionResult Post([FromBody]AnagraficaRfidDeviceModel value)
+        //paid 
+        [HttpPost("paidByDevice")]
+        public async  Task<IActionResult> PaidAction([FromBody]PaidModel paidmodel)
         {
-
-            var res = _repositoryRfid.CeateNewRfid(value);
-            if (res)
-                return Ok();
+            var res =  await _repositoryRfid.PaidByRfid(paidmodel);
+            if (res == 1) return  Ok();
+            if (res == -1) return BadRequest("NoDevice");
+            if (res == -2) return BadRequest("Noanagrafica");
 
             return BadRequest();
-        }
 
-        //paid 
-        [HttpPost("paid")]
-        public IActionResult PaidAction([FromBody]PaidModel paidmodel)
-        {
-            var res = _repositoryRfid.PaidByRfid(paidmodel);
-            if (res)
-                return Ok();
 
-            return NotFound();
+
         }
 
         //

@@ -63,117 +63,54 @@ namespace RfidSPA.Service
             return _appDbContext.RfidDevice.Where(i => i.AnagraficaID == ID && i.ApplicationUserID == _appCurrentUserID).ToList();
         }
 
-        public bool CeateNewRfid(AnagraficaRfidDeviceModel  item)
-        {
-
-            try
-            {
-                var l_anag = _appDbContext.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
-
-                // check id user exists 
-                // se user non esiste crea uno nuovo 
-                if (l_anag == null)
-                {
-                    Anagrafica anag = item.anagrafica;
-                    anag.CreationDate = DateTime.Now;
-                    anag.ApplicationUserID =  _appCurrentUserID;
-                    _appDbContext.Anagrafica.Add(anag);
-                    _appDbContext.SaveChanges();
-
-                    l_anag = _appDbContext.Anagrafica.Where(i => i.Email == item.anagrafica.Email && i.ApplicationUserID == _appCurrentUserID).SingleOrDefault();
-
-                }
-
-                item.anagrafica.AnagraficaID = l_anag.AnagraficaID;
-               
-                var rfid = _appDbContext.RfidDevice
-                    .Where(i => i.RfidDeviceCode == item.device.RfidDeviceCode && i.ApplicationUserID == _appCurrentUserID)
-                    .SingleOrDefault();
-
-
-                if (rfid != null)
-                {
-                    rfid.AnagraficaID = item.anagrafica.AnagraficaID;
-                    rfid.ExpirationDate = item.device.ExpirationDate;
-                    rfid.LastModifiedDate = DateTime.Now;
-                    rfid.Credit = 0;
-                    rfid.Active = true;
-
-                    //update
-                    _appDbContext.RfidDevice.Update(rfid);
-                    _appDbContext.SaveChanges();
-
-                 
-                }
-                else
-                {
-                    // new 
-
-                    RfidDevice l_rfid = new RfidDevice();
-                    l_rfid.RfidDeviceCode = item.device.RfidDeviceCode;
-                    l_rfid.ExpirationDate = item.device.ExpirationDate;
-                    l_rfid.CreationDate = DateTime.Now;
-                    l_rfid.LastModifiedDate = DateTime.Now;
-                    l_rfid.Credit = 0;
-                    l_rfid.ApplicationUserID = item.device.ApplicationUserID;
-                    l_rfid.Active = true;
-                    l_rfid.AnagraficaID = l_anag.AnagraficaID;
-
-                    _appDbContext.RfidDevice.AddAsync(l_rfid);
-                    _appDbContext.SaveChanges();
-
-                    //aggiorna history
-                   
-                }
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-
 
         // paga con il dispositivo
-        public bool PaidByRfid(PaidModel paidModel)
+        public Task<int> PaidByRfid(PaidModel paidModel)
         {
 
-            bool result = true;
+           
             try
             {
-                var rfid = RfidByCode(paidModel.RfidCode);
-                if (rfid != null)
-                {
-                    if(rfid.AnagraficaID == null || rfid.AnagraficaID ==0)
-                    {
-                        return false; // non è associata nessuna anagrafica 
-                    }
+
+                var rfid = _appDbContext.RfidDevice
+                    .Include(a=>a.Anagrafica)
+                    .Where(i => i.RfidDeviceCode == paidModel.RfidCode && i.StoreID == paidModel.StoreId)
+                    .SingleOrDefault();
+
+                if (rfid == null) return Task.FromResult(-1);  // manca Disposistivo
+
+                if(rfid.AnagraficaID == null || rfid.AnagraficaID ==0)  return Task.FromResult(-2); // non è associata nessuna anagrafica 
+
+                var price = Math.Round(paidModel.Price, 2);
+
+
                     RfidDeviceTransaction trans = new RfidDeviceTransaction();
                     trans.RfidDeviceCode = rfid.RfidDeviceCode;
-                    trans.AnagraficaID = rfid.AnagraficaID;
+                    trans.RfideDevice = rfid;
+                    trans.Anagrafica = rfid.Anagrafica;
                     trans.ApplicationUserID = rfid.ApplicationUserID;
+                    trans.StoreID = paidModel.StoreId;
                     trans.TransactionOperation = (int)TransactionOperation.Pagamento;
                     trans.TransactionDate = DateTime.Now;
-                    trans.Importo = paidModel.Price;
+                    trans.Importo = price;
                     trans.Descrizione = paidModel.Descrizione;
                     trans.PaydOff = false;
 
-                    rfid.Credit += paidModel.Price;
+                     rfid.Credit += price;
                     _appDbContext.Update(rfid);
                     _appDbContext.RfidDeviceTransaction.Add(trans);
                     _appDbContext.SaveChanges();
-                }
-                else result = false;
+
+                return Task.FromResult(1);
+   
             }
 
             catch (Exception e)
             {
-                result = false;
+                _logger.LogError("Errore PaidByRfid:  ", e.ToString());
+                return Task.FromResult(0);
             }
 
-            return result;
 
         }
 
@@ -467,6 +404,10 @@ namespace RfidSPA.Service
         }
 
 
+
+        #region methods 
+
+
         void AddHistoryDevice(string DeviceCode, long? StoreID, TypeDeviceHistoryOperation operation)
         {
             try
@@ -498,13 +439,17 @@ namespace RfidSPA.Service
             }
         }
 
+        void UpdateTransactions()
+        {
+
+        }
+
+#endregion
 
 
 
 
 
-
-     
 
     }
 }

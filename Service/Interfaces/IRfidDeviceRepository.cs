@@ -20,6 +20,7 @@ namespace RfidSPA.Service.Interfaces
 
         Task<List<RfidDeviceTransaction>> GetDeviceDeviceTransactions(string deviceCode);
         Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceCode);
+        Task<int> PaidByRfid(PaidModel paidmodel);
 
 
         //end new 
@@ -34,9 +35,8 @@ namespace RfidSPA.Service.Interfaces
 
         List<RfidDevice> RfidsByAnagraficaID(long ID);
 
-        bool CeateNewRfid(AnagraficaRfidDeviceModel item);
 
-        bool PaidByRfid(PaidModel paidmodel);
+       
 
         bool paidOffRfid(string code);
 

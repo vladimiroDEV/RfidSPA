@@ -8,9 +8,10 @@ using RfidSPA.Data;
 namespace RfidSPA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170826212056_TransactionChange_1")]
+    partial class TransactionChange_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.1")
@@ -284,9 +285,9 @@ namespace RfidSPA.Migrations
 
                     b.Property<string>("RfidDeviceCode");
 
-                    b.Property<long>("RfidDeviceID");
+                    b.Property<string>("RfidDeviceID");
 
-                    b.Property<long>("StoreID");
+                    b.Property<long?>("RfidDeviceID1");
 
                     b.Property<DateTime>("TransactionDate");
 
@@ -296,9 +297,7 @@ namespace RfidSPA.Migrations
 
                     b.HasIndex("AnagraficaID");
 
-                    b.HasIndex("RfidDeviceID");
-
-                    b.HasIndex("StoreID");
+                    b.HasIndex("RfidDeviceID1");
 
                     b.ToTable("RfidDeviceTransaction");
                 });
@@ -424,15 +423,9 @@ namespace RfidSPA.Migrations
                         .WithMany()
                         .HasForeignKey("AnagraficaID");
 
-                    b.HasOne("RfidSPA.Models.Entities.RfidDevice", "RfideDevice")
+                    b.HasOne("RfidSPA.Models.Entities.RfidDevice")
                         .WithMany("RfidDeviceTransaction")
-                        .HasForeignKey("RfidDeviceID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("RfidSPA.Models.Entities.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("RfidDeviceID1");
                 });
 
             modelBuilder.Entity("RfidSPA.Models.Entities.StoreUser", b =>
