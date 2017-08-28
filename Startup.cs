@@ -120,7 +120,7 @@ namespace WebApplicationBasic
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
-
+            //services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<IRfidDeviceRepository, RfidDeviceRepository>();
             services.AddScoped<IAnagraficaRepository, AnagraficaRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -154,22 +154,22 @@ namespace WebApplicationBasic
           .AllowAnyMethod());
 
 
-            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+            //var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+            //var tokenValidationParameters = new TokenValidationParameters
+            //{
+            //    ValidateIssuer = true,
+            //    ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
-                ValidateAudience = true,
-                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+            //    ValidateAudience = true,
+            //    ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
 
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
+            //    ValidateIssuerSigningKey = true,
+            //    IssuerSigningKey = _signingKey,
 
-                RequireExpirationTime = false,
-                ValidateLifetime = false,
-                ClockSkew = TimeSpan.Zero
-            };
+            //    RequireExpirationTime = false,
+            //    ValidateLifetime = false,
+            //    ClockSkew = TimeSpan.Zero
+            //};
 
 
             //app.UseJwtBearerAuthentication(new JwtBearerOptions
@@ -198,7 +198,7 @@ namespace WebApplicationBasic
                     defaults: new { controller = "Home", action = "Index" });
             });
 
-            new UserRoleSeed(app.ApplicationServices.GetService<RoleManager<IdentityRole>>()).Seed();
+            //new UserRoleSeed(app.ApplicationServices.GetService<RoleManager<IdentityRole>>()).Seed();
 
         }
     }

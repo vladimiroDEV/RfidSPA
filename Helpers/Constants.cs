@@ -26,6 +26,7 @@ namespace RfidSPA.Helpers
             public const string StoreAdministrator = "StoreAdministrator";
             public const string StoreOperator = "StoreOperator";
             public const string Default = "Default";
+            public const string God = "God";
         } 
     }
 }

@@ -5,6 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
+using RfidSPA.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApplicationBasic
 {
@@ -13,7 +17,22 @@ namespace WebApplicationBasic
 
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var host = BuildWebHost(args);
+          
+                try
+                {
+                 ;
+                    new UserRoleSeed().Seed(host);
+
+                }
+                catch (Exception ex)
+                {
+                    var logger = host.Services.CreateScope().ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred seeding the DB.");
+                }
+            
+
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
