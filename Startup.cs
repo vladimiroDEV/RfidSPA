@@ -112,7 +112,7 @@ namespace WebApplicationBasic
             });
 
 
-
+            services.AddCors();
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver =
@@ -127,6 +127,7 @@ namespace WebApplicationBasic
             services.AddScoped<IStoreRepository, StoreRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline. 
@@ -146,6 +147,7 @@ namespace WebApplicationBasic
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+            
 
             app.UseCors(
            builder => builder

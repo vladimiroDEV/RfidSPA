@@ -31,7 +31,7 @@ namespace RfidSPA.Service
         {
             _appDbContext = context;
             _httpContextAcessor = httpContextAcessor;
-            _appCurrentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
+         //   _appCurrentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
             _logger = loggerFactory.CreateLogger<RfidDeviceRepository>();
             _anagraficaReposity = anagrepository;
             _userManager = userManager;
@@ -86,9 +86,8 @@ namespace RfidSPA.Service
 
                     RfidDeviceTransaction trans = new RfidDeviceTransaction();
                     trans.RfidDeviceCode = rfid.RfidDeviceCode;
-                    trans.RfideDevice = rfid;
                     trans.Anagrafica = rfid.Anagrafica;
-                    trans.ApplicationUserID = rfid.ApplicationUserID;
+                    trans.ApplicationUserID = paidModel.OperatorID;
                     trans.StoreID = paidModel.StoreId;
                     trans.TransactionOperation = (int)TransactionOperation.Pagamento;
                     trans.TransactionDate = DateTime.Now;
@@ -117,28 +116,32 @@ namespace RfidSPA.Service
 
 
         // salda il conto e restituisci il dissassocia il dispositivo da l'utente 
-        public bool paidOffRfid(string code)
+        public Task<int> paidOffRfid(PaidModel paidModel)
         {
 
             try
             {
-                var listTr = _appDbContext.RfidDeviceTransaction
+
+                var rfid = _appDbContext.RfidDevice
+                  .Where(i => i.RfidDeviceCode == paidModel.RfidCode
+                     && i.AnagraficaID != null
+                     && i.ApplicationUserID == _appCurrentUserID)
+                  .SingleOrDefault();
+
+                if (rfid == null) return Task.FromResult(-1);
+
+                var listTr = _appDbContext.RfidDeviceTransaction.Include(d=>d.RfidDevice)
                 .Where(i => i.PaydOff == false
-                        && i.RfidDeviceCode == code
+                        && i.RfidDeviceCode == paidModel.RfidCode
                         && i.AnagraficaID != null
-                        && i.ApplicationUserID == _appCurrentUserID
+                        && i.StoreID == paidModel.StoreId
                         && i.TransactionOperation == (int)TransactionOperation.Pagamento)
                  .ToList();
-                var rfid = _appDbContext.RfidDevice
-                    .Where(i => i.RfidDeviceCode == code
-                       && i.AnagraficaID != null
-                       && i.ApplicationUserID == _appCurrentUserID)
-                    .SingleOrDefault();
-            
-           
 
-                if (listTr != null)
-                {
+                if (listTr == null) return Task.FromResult(-1);
+              
+            
+               
                     foreach (var item in listTr)
                     {
                         item.PaydOff = true;
@@ -146,14 +149,11 @@ namespace RfidSPA.Service
                         _appDbContext.RfidDeviceTransaction.Update(item);
 
                     }
-                }
-                if (rfid != null){
-
-
-                    _appDbContext.RfidDeviceTransaction.Add(new RfidDeviceTransaction
-                    {
+                _appDbContext.RfidDeviceTransaction.Add(new RfidDeviceTransaction
+                {
                         AnagraficaID = rfid.AnagraficaID,
-                        ApplicationUserID = rfid.ApplicationUserID,
+                        ApplicationUserID = paidModel.OperatorID,
+                        StoreID = rfid.StoreID,
                         Descrizione = "Saldo conto",
                         Importo = rfid.Credit,
                         RfidDeviceCode = rfid.RfidDeviceCode,
@@ -167,17 +167,13 @@ namespace RfidSPA.Service
                     _appDbContext.Update(rfid);
                     _appDbContext.SaveChanges();
 
-
-
-                    return true;
-                }
-                else return false;
+                return Task.FromResult(1);
 
             }
            
              catch
             {
-                return false;
+                return Task.FromResult(0);
             }
 
         }
@@ -190,8 +186,8 @@ namespace RfidSPA.Service
                 foreach (var rfid in listRfids)
                 {
 
-                    var res = paidOffRfid(rfid.RfidDeviceCode);
-                    if (res == false) return false;
+                    //var res = paidOffRfid(rfid.RfidDeviceCode);
+                    //if (res == false) return false;
                 }
 
                 return true;
@@ -203,16 +199,16 @@ namespace RfidSPA.Service
 
         }
 
-        public List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code)
+        public List<RfidDeviceTransaction> getAllTransactionsToPaydOff(PaidModel paidModel)
         {
 
             List<RfidDeviceTransaction> listTr = new List<RfidDeviceTransaction>();
 
             listTr = _appDbContext.RfidDeviceTransaction
                 .Where(i => i.PaydOff == false
-                        && i.RfidDeviceCode == code
+                        && i.RfidDeviceCode == paidModel.RfidCode
                         && i.AnagraficaID != null
-                        && i.ApplicationUserID == _appCurrentUserID
+                        && i.StoreID == paidModel.StoreId
                         && i.TransactionOperation == (int)TransactionOperation.Pagamento)
                  .ToList();
 

@@ -16,8 +16,6 @@ namespace RfidSPA.Service
         private readonly ILogger _logger;
         private readonly ApplicationDbContext _appDbContext;
         private readonly IHttpContextAccessor _httpContextAcessor;
-        private string _currentUserID;
-
 
         public AccountRepository(
               UserManager<ApplicationUser> userManager,

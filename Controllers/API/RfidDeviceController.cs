@@ -15,7 +15,7 @@ namespace RfidSPA.Controllers.API
 
     [Produces("application/json")]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class RfidDeviceController : Controller
     {
 
@@ -54,13 +54,12 @@ namespace RfidSPA.Controllers.API
 
         }
 
-        //
-        // parametro Aplication UserID  rfidCode
-        [HttpGet("getAllTransactionsToPaydOff/{code}")]
-        public IActionResult getAllTransactionsToPaydOff(string code)
+       
+        [HttpPost("getAllTransactionsToPaydOff")]
+        public IActionResult getAllTransactionsToPaydOff([FromBody]PaidModel paidModel)
         {
 
-            var res = _repositoryRfid.getAllTransactionsToPaydOff(code);
+            var res = _repositoryRfid.getAllTransactionsToPaydOff(paidModel);
 
             if (res != null)
                 if(res.Count >0)
@@ -68,6 +67,9 @@ namespace RfidSPA.Controllers.API
 
             return NotFound();
         }
+
+
+
 
         // get user deatil by email 
         [HttpGet("userdetailbymail/{email}")]
@@ -95,11 +97,11 @@ namespace RfidSPA.Controllers.API
 
         // PAid 
         [HttpPost("paidTotalReset")]
-        public IActionResult paidTotalReset([FromBody] string code)
+        public async Task<IActionResult> paidTotalReset([FromBody] PaidModel paidModel)
         {
 
-            var res = _repositoryRfid.paidOffRfid(code);
-            if (res) return Ok();
+            var res = await _repositoryRfid.paidOffRfid(paidModel);
+            if (res ==1 ) return Ok();
 
             return NotFound();
 

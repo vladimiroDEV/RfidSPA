@@ -13,7 +13,7 @@ namespace RfidSPA.Controllers.API
 {
     [Produces("application/json")]
     [Route("api/Anagrafica")]
-    [Authorize]
+   [Authorize]
     public class AnagraficaController : Controller
     {
         private readonly IRfidDeviceRepository _repositoryRfid;

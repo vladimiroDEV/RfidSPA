@@ -22,6 +22,10 @@ namespace RfidSPA.Service.Interfaces
         Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceCode);
         Task<int> PaidByRfid(PaidModel paidmodel);
 
+        Task<int> paidOffRfid(PaidModel paidModel);
+
+
+
 
         //end new 
 
@@ -38,12 +42,12 @@ namespace RfidSPA.Service.Interfaces
 
        
 
-        bool paidOffRfid(string code);
+       
 
         bool paidOffAllRfids(List<RfidDevice> listRfids);
 
 
-        List<RfidDeviceTransaction> getAllTransactionsToPaydOff(string code);
+        List<RfidDeviceTransaction> getAllTransactionsToPaydOff(PaidModel paidModel);
          Task<List<RfidDevice>> getDevicesByApplicationUsers();
 
         UserDetailViewModel getGeatailUserByEmail(string email);

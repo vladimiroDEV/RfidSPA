@@ -25,7 +25,7 @@ namespace RfidSPA.Service
             _context = context;
             _userManager = userManager;
             _httpContextAcessor = HttpContextAcessor;
-            _currentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
+           // _currentUserID = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
 
 
         }

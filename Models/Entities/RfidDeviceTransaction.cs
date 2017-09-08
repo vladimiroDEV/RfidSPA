@@ -19,7 +19,7 @@ namespace RfidSPA.Models.Entities
         public virtual Anagrafica Anagrafica {get; set; }
 
         public long RfidDeviceID { get; set; }
-        public virtual  RfidDevice RfideDevice { get; set; }
+        public virtual  RfidDevice RfidDevice { get; set; }
 
         public string ApplicationUserID { get; set; }
 
@@ -37,7 +37,7 @@ namespace RfidSPA.Models.Entities
 
         public DateTime? PaydOffDate { get; set; }
 
-        public long StoreID { get; set; }
+        public long? StoreID { get; set; }
 
         public virtual Store Store { get; set; }
 

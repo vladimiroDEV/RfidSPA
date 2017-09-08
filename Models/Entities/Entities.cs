@@ -12,6 +12,7 @@ namespace RfidSPA.Models.Entities
         public double Price { get; set; }
         public string Descrizione { get; set; }
         public long StoreId { get; set; }
+        public string OperatorID { get; set; }
 
     }
     public class ChangepasswordModel

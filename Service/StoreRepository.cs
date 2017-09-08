@@ -39,8 +39,6 @@ namespace RfidSPA.Service
 
             try
             {
-                var userid = _httpContextAcessor.HttpContext.User.Claims.Single(c => c.Type == "id").Value;
-
 
                 Store newStore = new Store
                 {
@@ -49,28 +47,33 @@ namespace RfidSPA.Service
                     Address = stroreModel.Address,
                     CreationDate = DateTime.Now,
                     LastModifiedDate = DateTime.Now,
-                    CreatorUser = userid,
-                    AdministratorID = userid
+                    CreatorUser = stroreModel.AdministratorID,
+                    AdministratorID = stroreModel.AdministratorID,
                 };
 
-                StoreUser storeUsers = new StoreUser
+                StoreUser storeUser = new StoreUser
                 {
-                    ApplicationUserID = userid,
+                    ApplicationUserID = stroreModel.AdministratorID,
                     UserRole = UserRolesConst.Administrator,
                     Store = newStore
 
                 };
 
+            /// storeUser.Add(storeUser);
 
 
-                await _appDbContext.StoreUsers.AddAsync(storeUsers);
+
+                await _appDbContext.StoreUsers.AddAsync(storeUser);
                 await _appDbContext.SaveChangesAsync();
 
-                var storeID = _appDbContext.StoreUsers.Where(i => i.ApplicationUserID == userid).Select(i => i.StoreID).SingleOrDefault();
-                return storeID;
+                var storeID =await  _appDbContext.Store.Where(i => i.AdministratorID == stroreModel.AdministratorID).Select(i => i.StoreID).SingleAsync();
+                
+               
+                return storeID ;
             }
             catch(Exception ex)
             {
+                _logger.LogError("Errore durante la creazione dello store: ", ex);
                 return -100;
             }
 
