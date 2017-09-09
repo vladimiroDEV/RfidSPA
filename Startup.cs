@@ -69,10 +69,8 @@ namespace WebApplicationBasic
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("ApiUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
-            });
+           
+        
 
             services.AddIdentity<ApplicationUser, IdentityRole>
                 (o =>
@@ -83,6 +81,7 @@ namespace WebApplicationBasic
                     o.Password.RequireUppercase = false;
                     o.Password.RequireNonAlphanumeric = false;
                     o.Password.RequiredLength = 6;
+                   
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -104,12 +103,34 @@ namespace WebApplicationBasic
                 ClockSkew = TimeSpan.Zero
             };
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(option=>
+            services.AddAuthentication(o=> 
+                {
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    
+                    
+                 })
+                 
+                 
+            .AddJwtBearer(option =>
             {
-                option.TokenValidationParameters = tokenValidationParameters;
                 
+                option.TokenValidationParameters = tokenValidationParameters;
+                option.RequireHttpsMetadata = false;
+                
+
+
+            })
+            ;
+            services.AddAuthorization(options =>
+            {
+
+                options.AddPolicy("ApiUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
+                options.AddPolicy("Administrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.Administrator));
+                options.AddPolicy("StoreAdministrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreAdministrator));
+                options.AddPolicy("StoreOperator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreOperator));
             });
+            //services.AddJwtBearerAuthentication();
 
 
             services.AddCors();
@@ -147,7 +168,9 @@ namespace WebApplicationBasic
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            
+
+
+            app.UseAuthentication();
 
             app.UseCors(
            builder => builder

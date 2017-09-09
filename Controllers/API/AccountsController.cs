@@ -12,6 +12,7 @@ using RfidSPA.Data;
 using RfidSPA.Helpers;
 using static RfidSPA.Helpers.Constants;
 using RfidSPA.Service;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -151,6 +152,8 @@ namespace RfidSPA.Controllers.API
 
 
         [HttpGet("allusers")]
+        [Authorize(Policy = UserRolesConst.Administrator)]
+       //[Authorize]
         public async Task<List<ApplicationUserVM>> getAllApplicationusers()
         {
             List <ApplicationUserVM> listUsers = new List<ApplicationUserVM>();

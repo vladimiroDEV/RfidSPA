@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using RfidSPA.Service;
 using RfidSPA.Models.Entities;
 using RfidSPA.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using static RfidSPA.Helpers.Constants;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,6 +15,7 @@ namespace RfidSPA.Controllers.API
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
+    [Authorize]
     public class StoreController : Controller
     {
 
@@ -39,6 +42,7 @@ namespace RfidSPA.Controllers.API
         }
 
         [HttpPost("updateStore")]
+        [Authorize(Policy = UserRolesConst.StoreAdministrator)]
         public  async Task<IActionResult> Update([FromBody]Store store)
         {
             var l_store = await _storeRepository.UpdateStore(store);

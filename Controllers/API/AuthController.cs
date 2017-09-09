@@ -54,14 +54,16 @@ namespace RfidSPA.Controllers.API
 
 
             var user = await _userManager.FindByEmailAsync(credentials.UserName);
-            var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
+            var userRole = await _userManager.GetRolesAsync(user);
+
+            var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password, userRole.FirstOrDefault());
             if (identity == null)
             {
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 
             var userID = identity.Claims.Single(c => c.Type == "id").Value;
-           var  userRole = await _userManager.GetRolesAsync(user);
+         
 
           
 
@@ -79,7 +81,7 @@ namespace RfidSPA.Controllers.API
             return new OkObjectResult(json);
         }
 
-        private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password)
+        private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password, string rol)
         {
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
             {
@@ -91,7 +93,7 @@ namespace RfidSPA.Controllers.API
                     // check the credentials  
                     if (await _userManager.CheckPasswordAsync(userToVerify, password))
                     {
-                        return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(userName, userToVerify.Id));
+                        return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(userName, userToVerify.Id, rol));
                     }
                 }
             }
