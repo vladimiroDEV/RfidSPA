@@ -64,55 +64,7 @@ namespace RfidSPA.Service
         }
 
 
-        // paga con il dispositivo
-        public Task<int> PaidByRfid(PaidModel paidModel)
-        {
-
-           
-            try
-            {
-
-                var rfid = _appDbContext.RfidDevice
-                    .Include(a=>a.Anagrafica)
-                    .Where(i => i.RfidDeviceCode == paidModel.RfidCode && i.StoreID == paidModel.StoreId)
-                    .SingleOrDefault();
-
-                if (rfid == null) return Task.FromResult(-1);  // manca Disposistivo
-
-                if(rfid.AnagraficaID == null || rfid.AnagraficaID ==0)  return Task.FromResult(-2); // non è associata nessuna anagrafica 
-
-                var price = Math.Round(paidModel.Price, 2);
-
-
-                    RfidDeviceTransaction trans = new RfidDeviceTransaction();
-                    trans.RfidDeviceCode = rfid.RfidDeviceCode;
-                    trans.Anagrafica = rfid.Anagrafica;
-                    trans.ApplicationUserID = paidModel.OperatorID;
-                    trans.StoreID = paidModel.StoreId;
-                    trans.TransactionOperation = (int)TransactionOperation.Pagamento;
-                    trans.TransactionDate = DateTime.Now;
-                    trans.Importo = price;
-                    trans.Descrizione = paidModel.Descrizione;
-                    trans.PaydOff = false;
-
-                     rfid.Credit += price;
-                    _appDbContext.Update(rfid);
-                    _appDbContext.RfidDeviceTransaction.Add(trans);
-                    _appDbContext.SaveChanges();
-
-                return Task.FromResult(1);
-   
-            }
-
-            catch (Exception e)
-            {
-                _logger.LogError("Errore PaidByRfid:  ", e.ToString());
-                return Task.FromResult(0);
-            }
-
-
-        }
-
+      
 
 
         // salda il conto e restituisci il dissassocia il dispositivo da l'utente 
@@ -125,7 +77,7 @@ namespace RfidSPA.Service
                 var rfid = _appDbContext.RfidDevice
                   .Where(i => i.RfidDeviceCode == paidModel.RfidCode
                      && i.AnagraficaID != null
-                     && i.ApplicationUserID == _appCurrentUserID)
+                     && i.StoreID == paidModel.StoreId)
                   .SingleOrDefault();
 
                 if (rfid == null) return Task.FromResult(-1);
@@ -160,19 +112,24 @@ namespace RfidSPA.Service
                         TransactionOperation = (int)TransactionOperation.SaldoDebito,
                         PaydOff = true,
                         PaydOffDate = DateTime.Now,
-                        TransactionDate = DateTime.Now
+                        TransactionDate = DateTime.Now,
+                        RfidDevice = rfid
+                        
                     });
                     rfid.Credit = 0;
                     rfid.AnagraficaID = null;
                     _appDbContext.Update(rfid);
                     _appDbContext.SaveChanges();
 
+                AddHistoryDevice(rfid.RfidDeviceCode, rfid.StoreID, TypeDeviceHistoryOperation.ClearDevice);
+
                 return Task.FromResult(1);
 
             }
            
-             catch
+             catch (Exception ex)
             {
+                _logger.LogError("errore durante restituzione del disposistivo : ", ex.ToString());
                 return Task.FromResult(0);
             }
 
@@ -325,7 +282,9 @@ namespace RfidSPA.Service
             try
             {
 
-                var l_device = _appDbContext.RfidDevice.Where(i => i.RfidDeviceCode == device.RfidDeviceCode).SingleOrDefault();
+                var l_device = _appDbContext.RfidDevice
+                    .Where(i => i.RfidDeviceCode == device.RfidDeviceCode && i.StoreID == device.StoreID)
+                    .SingleOrDefault();
                 if (l_device == null)
                 {
                     var createRes = await createRfidDevice(device);
@@ -336,7 +295,9 @@ namespace RfidSPA.Service
                 if (l_device.Active == true && l_device.AnagraficaID != null) return 2; ///il device è gia associato ad un anagrafica
                 
 
-                var l_anagrafica = _appDbContext.Anagrafica.Where(i => i.Email == device.Anagrafica.Email).SingleOrDefault();
+                var l_anagrafica = _appDbContext
+                    .Anagrafica.Where(i => i.Email == device.Anagrafica.Email && i.StoreID == device.StoreID)
+                    .SingleOrDefault();
                 if (l_anagrafica == null) // crea nuova anagrafica 
                 {
 
@@ -397,6 +358,57 @@ namespace RfidSPA.Service
         public Task<List<RfidDeviceHistory>> GetDeviceDeviceRfidDeviceHistory(string deviceID)
         {
             throw new NotImplementedException();
+        }
+
+        // paga con il dispositivo
+        public Task<int> PaidByRfid(PaidModel paidModel)
+        {
+
+
+            try
+            {
+
+                var rfid = _appDbContext.RfidDevice
+                    .Include(a => a.Anagrafica)
+                    .Where(i => i.RfidDeviceCode == paidModel.RfidCode && i.StoreID == paidModel.StoreId)
+                    .SingleOrDefault();
+
+                if (rfid == null) return Task.FromResult(-1);  // manca Disposistivo
+
+                if (rfid.AnagraficaID == null || rfid.AnagraficaID == 0) return Task.FromResult(-2); // non è associata nessuna anagrafica 
+
+                var price = Math.Round(paidModel.Price, 2);
+
+
+                RfidDeviceTransaction trans = new RfidDeviceTransaction();
+                trans.RfidDeviceCode = rfid.RfidDeviceCode;
+                trans.Anagrafica = rfid.Anagrafica;
+                trans.ApplicationUserID = paidModel.OperatorID;
+                trans.StoreID = paidModel.StoreId;
+                trans.TransactionOperation = (int)TransactionOperation.Pagamento;
+                trans.TransactionDate = DateTime.Now;
+                trans.Importo = price;
+                trans.Descrizione = paidModel.Descrizione;
+                trans.PaydOff = false;
+                trans.RfidDevice = rfid;
+
+                rfid.Credit += price;
+                _appDbContext.RfidDeviceTransaction.Add(trans);
+                _appDbContext.Update(rfid);
+
+                _appDbContext.SaveChanges();
+
+                return Task.FromResult(1);
+
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError("Errore PaidByRfid:  ", e.ToString());
+                return Task.FromResult(0);
+            }
+
+
         }
 
 

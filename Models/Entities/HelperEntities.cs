@@ -10,7 +10,7 @@ namespace RfidSPA.Models.Entities
     {
         CreazioneDevice = 1,
         JoinToAnagrafica =2,
-        LeaveAnagrafica = 3,
+        ClearDevice = 3,
         ModificaDevice = 4
 
 

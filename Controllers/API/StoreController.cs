@@ -21,13 +21,13 @@ namespace RfidSPA.Controllers.API
 
         private readonly IStoreRepository _storeRepository;
 
-        public StoreController( IStoreRepository storeRepository)
+        public StoreController(IStoreRepository storeRepository)
         {
             _storeRepository = storeRepository;
-    }
+        }
 
         [HttpPost("create")]
-        public  async Task<IActionResult> Create([FromBody]Store store)
+        public async Task<IActionResult> Create([FromBody]Store store)
         {
 
             var res = await _storeRepository.CreateStore(store);
@@ -38,12 +38,12 @@ namespace RfidSPA.Controllers.API
                 store_id = res
             };
 
-            return new  OkObjectResult(result);
+            return new OkObjectResult(result);
         }
 
         [HttpPost("updateStore")]
         [Authorize(Policy = UserRolesConst.StoreAdministrator)]
-        public  async Task<IActionResult> Update([FromBody]Store store)
+        public async Task<IActionResult> Update([FromBody]Store store)
         {
             var l_store = await _storeRepository.UpdateStore(store);
 
@@ -55,7 +55,7 @@ namespace RfidSPA.Controllers.API
         }
 
         [HttpPost("deleteStore")]
-        public async Task<IActionResult> DeleteStore([FromBody]long  storeID)
+        public async Task<IActionResult> DeleteStore([FromBody]long storeID)
         {
             var l_store = await _storeRepository.DeleteStore(storeID);
 
@@ -100,7 +100,7 @@ namespace RfidSPA.Controllers.API
         [HttpPost("GetOperators")]
         public async Task<List<ApplicationUser>> GetOperators([FromBody]long StoreID)
         {
-            var users =   await  _storeRepository.GetStoreUsers(StoreID);
+            var users = await _storeRepository.GetStoreUsers(StoreID);
 
             return await Task.FromResult(users);
         }
@@ -108,7 +108,7 @@ namespace RfidSPA.Controllers.API
         [HttpPost("GetStoreID")]
         public async Task<IActionResult> GetStoreIdByUser([FromBody] string email)
         {
-            var res =  await _storeRepository.GetstoreIdByUser(email);
+            var res = await _storeRepository.GetstoreIdByUser(email);
 
             if (res < 0) return BadRequest();
             var result = new
@@ -119,11 +119,16 @@ namespace RfidSPA.Controllers.API
             return new OkObjectResult(result);
         }
 
+        [HttpGet("GetStoreDevices/{storeID}")]
+        [Authorize]
+        public async Task<List<RfidDevice>> GetStoreDevices(long storeID)
+        {
+            var devices = await _storeRepository.GetStoreDevices(storeID);
 
-        //create Store
+            return await Task.FromResult(devices);
 
-        // updateStore
-
-        // delete store 
+        }
     }
+
+       
 }

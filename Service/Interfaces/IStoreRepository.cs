@@ -21,5 +21,7 @@ namespace RfidSPA.Service
         Task<int> RemoveStoreOperator(long StoreID, string storeUserID);
 
         Task <List<ApplicationUser>> GetStoreUsers(long StoreID);
+
+        Task<List<RfidDevice>> GetStoreDevices(long StoreID);
     }
 }

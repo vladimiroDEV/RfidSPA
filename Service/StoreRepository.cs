@@ -200,5 +200,12 @@ namespace RfidSPA.Service
             List<ApplicationUser> users = store.storeUsers.Select(u=>u.ApplicationUser).ToList();
             return Task.FromResult(users);
         }
+
+        public Task<List<RfidDevice>> GetStoreDevices(long StoreID)
+        {
+            return _appDbContext.RfidDevice
+                 .Where(i => i.StoreID == StoreID)
+                 .ToListAsync();
+        }
     }
 }

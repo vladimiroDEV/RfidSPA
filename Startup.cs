@@ -129,6 +129,11 @@ namespace WebApplicationBasic
                 options.AddPolicy("Administrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.Administrator));
                 options.AddPolicy("StoreAdministrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreAdministrator));
                 options.AddPolicy("StoreOperator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreOperator));
+                options.AddPolicy("AccessStor", policy =>
+                {
+                    policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreOperator);
+                    policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.UserRolesConst.StoreAdministrator);
+                } ); 
             });
             //services.AddJwtBearerAuthentication();
 
